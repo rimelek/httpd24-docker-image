@@ -20,8 +20,8 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'itsziget/httpd24'
-copyright = '2018, Takács Ákos'
-author = 'Takács Ákos'
+copyright = u'2018, Takács Ákos'
+author = u'Takács Ákos'
 
 # The short X.Y version
 version = ''
@@ -131,7 +131,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'ItszigetHttpd24.tex', 'itsziget/httpd24 Documentation',
-     'Takács Ákos', 'manual'),
+     u'Takács Ákos', 'manual'),
 ]
 
 
@@ -140,7 +140,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'httpd24dockerimage', 'HTTPD 2.4 Docker image Documentation',
+    (master_doc, 'httpd24dockerimage', 'itsziget/httpd24 Documentation',
      [author], 1)
 ]
 
@@ -151,7 +151,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ItszigetHttpd24', 'ItszigetHttpd24 Documentation',
+    (master_doc, 'ItszigetHttpd24', 'itsziget/httpd24 Documentation',
      author, 'ItszigetHttpd24', 'One line description of project.',
      'Miscellaneous'),
 ]
