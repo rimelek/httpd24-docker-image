@@ -25,6 +25,8 @@ SRV_AUTH_USERS
     | Example:
     | SRV_AUTH_USERS="admin1 secretpassword\\
     | admin2 secretpassword2"
+SRV_DOCROOT
+    (default: "/usr/local/apache2/htdocs") The value after DocumentRoot directive. This variable helps you change the document root and it's Directory block.
 SRV_ENABLE_CONFIG
     (default: "") Pass the name of configurations you want to enable separated by space. There are 3 type of configuration.
 
