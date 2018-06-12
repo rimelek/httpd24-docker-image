@@ -25,9 +25,19 @@ SRV_AUTH_USERS
 SRV_ENABLE_CONFIG
     (default: "") Pass the name of configurations you want to enable separated by space. There are 3 type of configuration.
 
-    * Official configurations in "conf/extra" directory. The name of them starts with "httpd-" followed by the name of configuration and ends with ".conf".
-      For example: httpd-default.conf. SRV_ENABLE_CONFIG="default ssl" will enable httpd-default.conf and httpd-ssl.conf
-    * Custom configurations of itsziget/httpd24. These are in "conf/custom-extra" directory. The name of them starts with the configuration name and ends with ".conf".
+    * Official configuration files in "conf/extra" directory. The name of them starts with the name of configuration and ends with ".conf".
+      For example: httpd-default.conf. SRV_ENABLE_CONFIG="httpd-default httpd-ssl" will enable httpd-default.conf and httpd-ssl.conf. You will rarely need it.
+    * Custom configurations of itsziget/httpd24. These are in "conf/custom-extra" directory.
       To enable these configurations you would need to prefix them with "@". Example: SRV_ENABLE_CONFIG="@php" These are controlled by environment variables so you don't need to enable them this way.
     * Your custom configuration can be saved to "conf/custom-extra/user" directory. If you want to enable them, prefix the configuration names with "@user/".
       Example: SRV_ENABLE_CONFIG="@user/my-conditional-redirect". Of course, the filename must ends with ".conf". See SRV_DISABLE_CONFIG to disable configurations.
+SRV_ENABLE_MODULE
+    | (default: "") Just like SRV_ENABLE_CONFIG, but this is to enable modules like rewrite.
+    | Example: SRV_ENABLE_MODULE="rewrite dav ssl"
+    | To disable modules enabled by default use SRV_DISABLE_MODULE.
+SRV_DISABLE_CONFIG
+    | (default: "") Disable configurations enabled by default. It will comment out the configuration's include.
+    | Example: SRV_DISABLE_CONFIG="proxy-html"
+SRV_DISABLE_MODULE:
+    | (default: "") If you want to disable every module you don't really need, this variable is for you.
+    | Example: SRV_DISABLE_MODULE="autoindex"
