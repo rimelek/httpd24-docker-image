@@ -178,17 +178,18 @@ dcdCommandGen () {
     reqVarNonEmpty VERSION
     reqVarNonEmpty CI_IMAGE_NAME
     reqVarNonEmpty CI_EVENT_TYPE
+    reqVarNonEmpty PROJECT_ROOT
 
     if [ "${CI_EVENT_TYPE}" == "cron" ]; then
+        cd "${PROJECT_ROOT}"
         if [ "$(isBranch)" ]; then
             reqVarNonEmpty "${CI_BRANCH}";
             if [ "$(isMinorBranch)" == "true" ]; then
                 LATEST_VERSION="$(getLatestStableOrPreVersion "${CI_BRANCH}")";
-                if [ "${LATEST_VERSION}" ]; then
-                    docker pull "${CI_IMAGE_NAME}:${GIT_HASH}";
-                    docker pull "${CI_IMAGE_NAME}:${LATEST_VERSION}";
-                    if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:${GIT_HASH}")" ] && [ "$(isParentImageUpgraded "${CI_IMAGE_NAME}:${GIT_HASH}" "httpd:2.4")" == "true" ]; then
-                        deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "${LATEST_VERSION}"
+                if [ -n "${LATEST_VERSION}" ]; then
+                    reqVarNonEmpty CI_BUILD_NUMBER
+                    if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}")" ]; then
+                        deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "build-${CI_BUILD_NUMBER}"
                     fi;
                 fi;
            fi;
