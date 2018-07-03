@@ -18,7 +18,7 @@ before_script:
   - chmod +x ./ci/build.sh
 
 script:
-  - ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${TRAVIS_TAG}" -b "${TRAVIS_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${TRAVIS_EVENT_TYPE}"
+  - ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${TRAVIS_TAG}" -b "${TRAVIS_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${TRAVIS_EVENT_TYPE}" -B "${TRAVIS_BUILD_NUMBER}"
 
 after_script:
   - docker images
@@ -29,7 +29,7 @@ before_deploy:
 
 deploy:
   provider: script
-  script: ./ci/deploy.sh -i "${HTTPD_IMAGE_NAME}" -t "${TRAVIS_TAG}" -b "${TRAVIS_BRANCH}" -e "${TRAVIS_EVENT_TYPE}"
+  script: ./ci/deploy.sh -i "${HTTPD_IMAGE_NAME}" -t "${TRAVIS_TAG}" -b "${TRAVIS_BRANCH}" -e "${TRAVIS_EVENT_TYPE}" -B "${TRAVIS_BUILD_NUMBER}"
   on:
     all_branches: true
 

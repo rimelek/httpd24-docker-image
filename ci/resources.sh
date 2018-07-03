@@ -68,9 +68,9 @@ getLatestStableVersion () {
 getLatestStableOrPreVersion () {
     local BRANCH="${1}";
     reqVarNonEmpty BRANCH
-    LATEST_VERSION="$(getLatestStableVersion "$(toMinorDevVersion "${BRANCH}")")";
+    LATEST_VERSION="$(getLatestStableVersion "${BRANCH}")";
     if [ -z "${LATEST_VERSION}" ]; then
-        LATEST_VERSION="$(getLatestVersion "$(toMinorDevVersion "${BRANCH}")")";
+        LATEST_VERSION="$(getLatestVersion "${BRANCH}")";
     fi;
     echo "${LATEST_VERSION}";
 }
@@ -104,8 +104,8 @@ isParentImageUpgraded () {
     reqVarNonEmpty IMAGE
     reqVarNonEmpty PARENT_IMAGE
 
-    local LAYERS="$(getLayers "${IMAGE}")";
-    local PARENT_LAYERS="$(getLayers "${PARENT_IMAGE}")";
+    local LAYERS="$(getImageLayers "${IMAGE}")";
+    local PARENT_LAYERS="$(getImageLayers "${PARENT_IMAGE}")";
 
     local RESULT="$(echo "${LAYERS}" | grep "$(echo "${PARENT_LAYERS}" | tail -n 1)")";
     [ -z "${RESULT}" ] && echo "true" || echo "false"
@@ -125,7 +125,7 @@ deployCommandGen () (
     local LATEST_MAJOR
     local CUSTOM_TAGS
     local IMAGE_NAME
-    local IMAGE_TAG="latest"
+    local IMAGE_TAG="${GIT_HASH}"
     local OPTIND
     local OPTARG
 
@@ -150,18 +150,21 @@ deployCommandGen () (
     local CURRENT_VALID="$(isValidSemanticVersion "${CURRENT_VERSION}")"
     local LATEST_VALID="$(isValidSemanticVersion "${LATEST_VERSION}")"
     [ -z "${IMAGE_NAME}" ] && >&2 echo "IMAGE_NAME is empty" && exit 1;
-    [ "${CURRENT_VALID}" != "true" ] && >&2 echo "Invalid CURRENT_VERSION: ${CURRENT_VERSION}" && return 1;
-    [ "${LATEST_VALID}" != "true" -a -n "${LATEST_VERSION}" ] && >&2 echo "Invalid LATEST_VERSION: ${LATEST_VERSION}" && return 1;
 
-    pushAs ${CURRENT_VERSION}
-    local IS_PRE_RELEASE="$(isPreRelease "${CURRENT_VERSION}")";
-    if [ "${SEMANTIC_VERSION}" == "true" ]; then
-        [ -z "${LATEST_MINOR}" ] && LATEST_MINOR="$(getLatestStableVersion "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)")"
-        [ -z "${LATEST_MAJOR}" ] && LATEST_MAJOR="$(git tag -l "v$(echo "${CURRENT_VERSION}" | cut -d . -f1).*")"
-        [ -z "${LATEST_VERSION}" ] && LATEST_VERSION="$(getLatestStableVersion)"
-        [ "${LATEST_MINOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)"
-        [ "${LATEST_MAJOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1)"
-        [ "${LATEST_VERSION}" == "${CURRENT_VERSION}" -a -n "${LATEST_VERSION}" ] && pushAs latest
+    if [ -n "${CURRENT_VERSION}" ]; then
+        [ "${CURRENT_VALID}" != "true" -a -n "${CURRENT_VERSION}" ] && >&2 echo "Invalid CURRENT_VERSION: ${CURRENT_VERSION}" && return 1;
+        [ "${LATEST_VALID}" != "true" -a -n "${LATEST_VERSION}" ] && >&2 echo "Invalid LATEST_VERSION: ${LATEST_VERSION}" && return 1;
+
+        pushAs ${CURRENT_VERSION}
+        local IS_PRE_RELEASE="$(isPreRelease "${CURRENT_VERSION}")";
+        if [ "${SEMANTIC_VERSION}" == "true" -o "${IS_PRE_RELEASE}" == "true" ]; then
+            [ -z "${LATEST_MINOR}" ] && LATEST_MINOR="$(getLatestStableVersion "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)")"
+            [ -z "${LATEST_MAJOR}" ] && LATEST_MAJOR="$(git tag -l "v$(echo "${CURRENT_VERSION}" | cut -d . -f1).*")"
+            [ -z "${LATEST_VERSION}" ] && LATEST_VERSION="$(getLatestStableVersion)"
+            [ "${LATEST_MINOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)"
+            [ "${LATEST_MAJOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1)"
+            [ "${LATEST_VERSION}" == "${CURRENT_VERSION}" -a -n "${LATEST_VERSION}" ] && pushAs latest
+        fi;
     fi;
 
     pushAs ${GIT_HASH}
@@ -175,26 +178,27 @@ dcdCommandGen () {
     reqVarNonEmpty VERSION
     reqVarNonEmpty CI_IMAGE_NAME
     reqVarNonEmpty CI_EVENT_TYPE
+    reqVarNonEmpty PROJECT_ROOT
 
     if [ "${CI_EVENT_TYPE}" == "cron" ]; then
+        cd "${PROJECT_ROOT}"
         if [ "$(isBranch)" ]; then
-            reqVarNonEmpty "${CI_BRANCH}";
+            reqVarNonEmpty CI_BRANCH
             if [ "$(isMinorBranch)" == "true" ]; then
                 LATEST_VERSION="$(getLatestStableOrPreVersion "${CI_BRANCH}")";
-                if [ "${LATEST_VERSION}" ]; then
-                    docker pull "${CI_IMAGE_NAME}:${GIT_HASH}";
-                    docker pull "${CI_IMAGE_NAME}:${LATEST_VERSION}";
-                    if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:${GIT_HASH}")" ] && [ "$(isParentImageUpgraded "${CI_IMAGE_NAME}:${GIT_HASH}" "httpd:2.4")" == "true" ]; then
-                        deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "${LATEST_VERSION}"
+                if [ -n "${LATEST_VERSION}" ]; then
+                    reqVarNonEmpty CI_BUILD_NUMBER
+                    if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}")" ]; then
+                        deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "build-${CI_BUILD_NUMBER}" -s
                     fi;
                 fi;
            fi;
         fi;
     else
         if [ "$(isValidSemanticVersion "${VERSION}")" == "true" ]; then
-            deployCommandGen -v "${VERSION}" -i "${CI_IMAGE_NAME}";
+            deployCommandGen -v "${VERSION}" -i "${CI_IMAGE_NAME}" -s;
         elif [ "$(isMinorBranch "${VERSION}")" == "true" ]; then
-            deployCommandGen -v $(toMinorDevVersion "${VERSION}") -i "${CI_IMAGE_NAME}";
+            deployCommandGen -T $(toMinorDevVersion "${VERSION}") -i "${CI_IMAGE_NAME}";
         fi;
     fi;
 
