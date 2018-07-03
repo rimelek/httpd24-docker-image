@@ -79,7 +79,7 @@ if [ "${CI_EVENT_TYPE}" == "cron" ]; then
                 cd "${BUILD_DIR}"
                 # update git commit hash
                 GIT_HASH="$(git rev-list -n 1 HEAD)"
-                # docker pull httpd:2.4
+                docker pull httpd:2.4
                 if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:${GIT_HASH}")" ] && [ "$(isParentImageUpgraded "${CI_IMAGE_NAME}:${GIT_HASH}" "httpd:2.4")" == "true" ]; then
                     COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" --tag "'${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}'" .'
 
