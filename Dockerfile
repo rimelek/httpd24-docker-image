@@ -42,6 +42,7 @@ RUN chmod +x /usr/local/apache2/bin/start.sh /usr/local/apache2/bin/before-start
     done \
  && echo "ServerName localhost.localdomain" >> "/usr/local/apache2/conf/httpd.conf" \
  && sed -i 's/^LogLevel .*/LogLevel ${SRV_LOGLEVEL}/g' "/usr/local/apache2/conf/httpd.conf" \
+ && sed -i 's/LogFormat "%h /LogFormat "%a /g' "/usr/local/apache2/conf/httpd.conf" \
  && mkdir /usr/local/apache2/ssl
     
 
