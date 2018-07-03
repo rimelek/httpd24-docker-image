@@ -183,7 +183,7 @@ dcdCommandGen () {
     if [ "${CI_EVENT_TYPE}" == "cron" ]; then
         cd "${PROJECT_ROOT}"
         if [ "$(isBranch)" ]; then
-            reqVarNonEmpty "${CI_BRANCH}";
+            reqVarNonEmpty CI_BRANCH
             if [ "$(isMinorBranch)" == "true" ]; then
                 LATEST_VERSION="$(getLatestStableOrPreVersion "${CI_BRANCH}")";
                 if [ -n "${LATEST_VERSION}" ]; then
