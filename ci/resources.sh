@@ -150,18 +150,21 @@ deployCommandGen () (
     local CURRENT_VALID="$(isValidSemanticVersion "${CURRENT_VERSION}")"
     local LATEST_VALID="$(isValidSemanticVersion "${LATEST_VERSION}")"
     [ -z "${IMAGE_NAME}" ] && >&2 echo "IMAGE_NAME is empty" && exit 1;
-    [ "${CURRENT_VALID}" != "true" ] && >&2 echo "Invalid CURRENT_VERSION: ${CURRENT_VERSION}" && return 1;
-    [ "${LATEST_VALID}" != "true" -a -n "${LATEST_VERSION}" ] && >&2 echo "Invalid LATEST_VERSION: ${LATEST_VERSION}" && return 1;
 
-    pushAs ${CURRENT_VERSION}
-    local IS_PRE_RELEASE="$(isPreRelease "${CURRENT_VERSION}")";
-    if [ "${SEMANTIC_VERSION}" == "true" ]; then
-        [ -z "${LATEST_MINOR}" ] && LATEST_MINOR="$(getLatestStableVersion "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)")"
-        [ -z "${LATEST_MAJOR}" ] && LATEST_MAJOR="$(git tag -l "v$(echo "${CURRENT_VERSION}" | cut -d . -f1).*")"
-        [ -z "${LATEST_VERSION}" ] && LATEST_VERSION="$(getLatestStableVersion)"
-        [ "${LATEST_MINOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)"
-        [ "${LATEST_MAJOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1)"
-        [ "${LATEST_VERSION}" == "${CURRENT_VERSION}" -a -n "${LATEST_VERSION}" ] && pushAs latest
+    if [ -n "${CURRENT_VERSION}" ]; then
+        [ "${CURRENT_VALID}" != "true" -a -n "${CURRENT_VERSION}" ] && >&2 echo "Invalid CURRENT_VERSION: ${CURRENT_VERSION}" && return 1;
+        [ "${LATEST_VALID}" != "true" -a -n "${LATEST_VERSION}" ] && >&2 echo "Invalid LATEST_VERSION: ${LATEST_VERSION}" && return 1;
+
+        pushAs ${CURRENT_VERSION}
+        local IS_PRE_RELEASE="$(isPreRelease "${CURRENT_VERSION}")";
+        if [ "${SEMANTIC_VERSION}" == "true" -o "${IS_PRE_RELEASE}" == "true" ]; then
+            [ -z "${LATEST_MINOR}" ] && LATEST_MINOR="$(getLatestStableVersion "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)")"
+            [ -z "${LATEST_MAJOR}" ] && LATEST_MAJOR="$(git tag -l "v$(echo "${CURRENT_VERSION}" | cut -d . -f1).*")"
+            [ -z "${LATEST_VERSION}" ] && LATEST_VERSION="$(getLatestStableVersion)"
+            [ "${LATEST_MINOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1-2)"
+            [ "${LATEST_MAJOR}" == "${CURRENT_VERSION}" ] && pushAs "$(echo "${CURRENT_VERSION}" | cut -d . -f1)"
+            [ "${LATEST_VERSION}" == "${CURRENT_VERSION}" -a -n "${LATEST_VERSION}" ] && pushAs latest
+        fi;
     fi;
 
     pushAs ${GIT_HASH}
@@ -194,7 +197,7 @@ dcdCommandGen () {
         if [ "$(isValidSemanticVersion "${VERSION}")" == "true" ]; then
             deployCommandGen -v "${VERSION}" -i "${CI_IMAGE_NAME}";
         elif [ "$(isMinorBranch "${VERSION}")" == "true" ]; then
-            deployCommandGen -v $(toMinorDevVersion "${VERSION}") -i "${CI_IMAGE_NAME}";
+            deployCommandGen -T $(toMinorDevVersion "${VERSION}") -i "${CI_IMAGE_NAME}";
         fi;
     fi;
 
