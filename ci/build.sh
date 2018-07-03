@@ -19,7 +19,7 @@ CI_EVENT_TYPE=""
 CI_REPOSITORY_ALIAS="origin"
 CI_BUILD_NUMBER="${GIT_HASH}"
 
-while getopts ":t:b:i:T:e:B:dhs" opt; do
+while getopts ":t:b:i:T:e:r:B:dhs" opt; do
     case ${opt} in
         d) CI_DRY_RUN="y"; ;;
         t) CI_TAG="${OPTARG}"; ;;
@@ -73,18 +73,20 @@ if [ "${CI_EVENT_TYPE}" == "cron" ]; then
                 COMMAND='docker pull "'${CI_IMAGE_NAME}:${VERSION_CACHE}'"'
                 echo ${COMMAND}
                 [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
-
-                git clone --branch "v${LATEST_VERSION}" $(git remote get-url "${CI_REPOSITORY_ALIAS}") ${PROJECT_ROOT}/.build
-                cd ${PROJECT_ROOT}/.build
+                BUILD_DIR="${PROJECT_ROOT}/.build"
+                [ -d "${BUILD_DIR}" ] && rm -rf "${BUILD_DIR}"
+                git clone --branch "v${LATEST_VERSION}" $(git remote get-url "${CI_REPOSITORY_ALIAS}") "${BUILD_DIR}"
+                cd "${BUILD_DIR}"
                 # update git commit hash
                 GIT_HASH="$(git rev-list -n 1 HEAD)"
+                # docker pull httpd:2.4
                 if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:${GIT_HASH}")" ] && [ "$(isParentImageUpgraded "${CI_IMAGE_NAME}:${GIT_HASH}" "httpd:2.4")" == "true" ]; then
-                    COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}' --tag "'${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}'" .'
+                    COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" --tag "'${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}'" .'
 
                     echo ${COMMAND}
                     [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
 
-                    if [ "${CI_SKIP_TEST}" != "y" -a -f "${PROJECT_ROOT}/.build/test/__init__.py" ]; then
+                    if [ "${CI_SKIP_TEST}" != "y" -a -f "test/__init__.py" ]; then
                         TEST_COMMAND='HTTPD_IMAGE_NAME="'${CI_IMAGE_NAME}'" HTTPD_IMAGE_TAG="'${GIT_HASH}'" HTTPD_WAIT_TIMEOUT="'${CI_DOCKER_START_TIMEOUT}'" py.test';
                         echo ${TEST_COMMAND}
                         [ "${CI_DRY_RUN}" != "y" ] && eval "${TEST_COMMAND}";

@@ -68,9 +68,9 @@ getLatestStableVersion () {
 getLatestStableOrPreVersion () {
     local BRANCH="${1}";
     reqVarNonEmpty BRANCH
-    LATEST_VERSION="$(getLatestStableVersion "$(toMinorDevVersion "${BRANCH}")")";
+    LATEST_VERSION="$(getLatestStableVersion "${BRANCH}")";
     if [ -z "${LATEST_VERSION}" ]; then
-        LATEST_VERSION="$(getLatestVersion "$(toMinorDevVersion "${BRANCH}")")";
+        LATEST_VERSION="$(getLatestVersion "${BRANCH}")";
     fi;
     echo "${LATEST_VERSION}";
 }
@@ -104,8 +104,8 @@ isParentImageUpgraded () {
     reqVarNonEmpty IMAGE
     reqVarNonEmpty PARENT_IMAGE
 
-    local LAYERS="$(getLayers "${IMAGE}")";
-    local PARENT_LAYERS="$(getLayers "${PARENT_IMAGE}")";
+    local LAYERS="$(getImageLayers "${IMAGE}")";
+    local PARENT_LAYERS="$(getImageLayers "${PARENT_IMAGE}")";
 
     local RESULT="$(echo "${LAYERS}" | grep "$(echo "${PARENT_LAYERS}" | tail -n 1)")";
     [ -z "${RESULT}" ] && echo "true" || echo "false"
