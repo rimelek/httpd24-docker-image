@@ -18,7 +18,7 @@ if [ "${SRV_AUTH_BOOL}" == "true" ]; then
         IFS=$'\n\r';
         PASSWD_PATH="/usr/local/apache2/.htpasswd";
         if [ -f "${PASSWD_PATH}" ]; then
-            truncate "${PASSWD_PATH}";
+            truncate --size 0 "${PASSWD_PATH}";
         fi;
         for LINE in ${SRV_AUTH_USERS}; do
             AUTH_USER="$(echo "${LINE}" | cut -d ' ' -f1 )";
