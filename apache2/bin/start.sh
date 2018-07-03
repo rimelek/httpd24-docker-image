@@ -81,6 +81,8 @@ if [ -z "${SRV_REVERSE_PROXY_DOMAIN}" ] && [ "${SRV_PROXY_PROTOCOL_BOOL}" != "tr
     switchConfig "@reverse-proxy" "off";
 else
     switchConfig "@reverse-proxy" "on";
+    sed -i 's/^RemoteIP.*//g' ${RPCONF}
+    sed -i '/^$/d' ${RPCONF}
     if [ "${SRV_PROXY_PROTOCOL_BOOL}" == "true" ]; then
         echo "RemoteIPProxyProtocol On" >> ${RPCONF};
     elif [  -n "${SRV_REVERSE_PROXY_DOMAIN}" ]; then
