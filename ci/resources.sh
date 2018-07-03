@@ -189,14 +189,14 @@ dcdCommandGen () {
                 if [ -n "${LATEST_VERSION}" ]; then
                     reqVarNonEmpty CI_BUILD_NUMBER
                     if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}")" ]; then
-                        deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "build-${CI_BUILD_NUMBER}"
+                        deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "build-${CI_BUILD_NUMBER}" -s
                     fi;
                 fi;
            fi;
         fi;
     else
         if [ "$(isValidSemanticVersion "${VERSION}")" == "true" ]; then
-            deployCommandGen -v "${VERSION}" -i "${CI_IMAGE_NAME}";
+            deployCommandGen -v "${VERSION}" -i "${CI_IMAGE_NAME}" -s;
         elif [ "$(isMinorBranch "${VERSION}")" == "true" ]; then
             deployCommandGen -T $(toMinorDevVersion "${VERSION}") -i "${CI_IMAGE_NAME}";
         fi;
