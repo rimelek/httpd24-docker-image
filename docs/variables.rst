@@ -54,6 +54,9 @@ SRV_PHP
     (default: "false") If it is "true", requested PHP scripts will be sent to PHP FPM. PHP FPM's hostname is "php" by default.
     In the same docker network you can name the PHP container as "php" or use "php" as the name of Docker Compose service.
     You can customize the hostname by SRV_PHP_HOST.
+SRV_PHP_DISABLE_REUSE
+    (default: "true") When you upgrade the PHP container, the container's IP can change. To make sure HTTPD use the new IP to connect,
+    you need to set "disablereuse=on" for FCGI proxy. To turn it off, set this variable's value to "true". You can use "on" and "off" too.
 SRV_PHP_HOST
     (default: "php") The hostname of your PHP FPM service.
 SRV_PHP_PORT

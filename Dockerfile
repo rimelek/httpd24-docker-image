@@ -17,6 +17,7 @@ ENV SRV_REVERSE_PROXY_DOMAIN="" \
     SRV_NAME="" \
     SRV_DOCROOT="" \
     SRV_PHP="false" \
+    SRV_PHP_DISABLE_REUSE="true" \
     SRV_PHP_HOST="php" \
     SRV_PHP_PORT="9000" \
     SRV_PHP_TIMEOUT="60" \

@@ -11,6 +11,8 @@ switchConfigs "${SRV_ENABLE_CONFIG}" "on";
 switchConfig "@php" "${SRV_PHP}";
 switchConfig "@httpauth" "${SRV_AUTH}";
 
+SRV_PHP_DISABLE_REUSE=$([ "$(toBool "${SRV_PHP_DISABLE_REUSE}")" == "true" ] && echo "on" || echo "off")
+
 SRV_AUTH_BOOL="$(toBool "${SRV_AUTH}")";
 if [ "${SRV_AUTH_BOOL}" == "true" ]; then
     if [ -n "${SRV_AUTH_USERS}" ]; then
