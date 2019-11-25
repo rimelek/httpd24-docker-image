@@ -1,0 +1,18 @@
+version: "3.7"
+
+volumes:
+  python-venv:
+
+services:
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python35
+      args:
+        APP_USER: ${USER?USER}
+        APP_USER_ID: ${USER_ID?USER_ID}
+        APP_USER_HOME: ${HOME?HOME}
+        APP_GROUP: ${GROUP?GROUP}
+        APP_GROUP_ID: ${GROUP_ID?GROUP_ID}
+    volumes:
+      - python-venv:/venv
