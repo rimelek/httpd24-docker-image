@@ -16,3 +16,4 @@ services:
         APP_GROUP_ID: ${GROUP_ID?GROUP_ID}
     volumes:
       - python-venv:/venv
+      - /var/run/docker.sock:/var/run/docker.sock
