@@ -7,7 +7,7 @@ services:
   python:
     build:
       context: .
-      dockerfile: Dockerfile.python35
+      dockerfile: Dockerfile
       args:
         APP_USER: ${USER?USER}
         APP_USER_ID: ${USER_ID?USER_ID}
@@ -17,4 +17,7 @@ services:
     volumes:
       - python-venv:/venv
       - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.ssh:$HOME/.ssh
+      - $PWD:$PWD
+    working_dir: $PWD
     network_mode: host

@@ -5,7 +5,7 @@ set -eu
 cd "$(dirname "$0")"
 
 if [[ -z "$*" ]]; then
-  ./python.sh
+  ./run.sh
 else
-  ./python.sh python "$@"
+  ./run.sh python "$@"
 fi
