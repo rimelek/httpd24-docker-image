@@ -17,3 +17,4 @@ services:
     volumes:
       - python-venv:/venv
       - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: host
