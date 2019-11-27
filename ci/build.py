@@ -51,4 +51,7 @@ if args.event_type == "cron":
                         subprocess.run(command)
 
                     if not args.skip_test and os.path.exists("test/__init__.py"):
-                        pytest.main()
+                        os.environ["HTTPD_IMAGE_NAME"] = args.image_name
+                        os.environ["HTTPD_IMAGE_TAG"] = resources.GIT_HASH
+                        os.environ["HTTPD_WAIT_TIMEOUT"] = str(args.docker_start_timeout)
+                        pytest.main(["test"])
