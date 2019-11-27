@@ -40,8 +40,8 @@ if args.event_type == "cron":
                 if resources.is_image_downloaded(image) and resources.is_parent_image_upgraded(image, "httpd:2.4"):
                     command = [
                         "docker", "build", "--pull",
-                        "--cache-from" f"{args.image_name}:{version_cache}",
-                        "--tag" f"{image}",
+                        "--cache-from", f"{args.image_name}:{version_cache}",
+                        "--tag", f"{image}",
                         "--tag", f"{args.image_name}:build-{args.build_number}",
                         ".",
                     ]
