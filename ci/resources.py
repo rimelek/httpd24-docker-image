@@ -21,7 +21,7 @@ class BuildArgumentParser(argparse.ArgumentParser):
         self.add_argument("-b", "--branch",
                           help="VCS branch")
         self.add_argument("-T", "--docker-start-timeout",
-                          help="How many seconds can the tester wait to start the container", type=int)
+                          help="How many seconds can the tester wait to start the container", type=int, default=180)
         self.add_argument("-i", "--image-name",
                           help="Desired name of the Docker image without version tag", required=True)
         self.add_argument("-s", "--skip-test",
