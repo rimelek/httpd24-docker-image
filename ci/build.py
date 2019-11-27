@@ -9,7 +9,8 @@ args = resources.BuildArgumentParser().parse_args()
 if args.tag is not None:
     args.branch = args.tag
 
-# TODO: make branch or a tag required
+if not args.branch:
+    raise Exception("Either --branch or --tag must be set")
 
 if args.event_type == "cron":
     if args.branch == args.tag:
@@ -54,3 +55,30 @@ if args.event_type == "cron":
                         os.environ["HTTPD_IMAGE_TAG"] = resources.GIT_HASH
                         os.environ["HTTPD_WAIT_TIMEOUT"] = str(args.docker_start_timeout)
                         pytest.main(["test"])
+else:
+    version_cache = args.branch + "-dev" if args.branch == args.tag else resources.GIT_HASH
+
+    command = [
+        "docker", "pull", args.image_name + ":" + version_cache
+    ]
+
+    print(subprocess.list2cmdline(command))
+    if not args.dry_run:
+        subprocess.run(command)
+
+    if args.branch == args.tag:
+        command = [
+            "docker", "build", "--pull",
+            "--cache-from", args.image_name + ":" + version_cache,
+            "--tag", args.image_name + ":" + resources.GIT_HASH,
+            "."
+        ]
+
+        print(subprocess.list2cmdline(command))
+        if not args.dry_run:
+            subprocess.check_call(command)
+            if not args.skip_test:
+                os.environ["HTTPD_IMAGE_NAME"] = args.image_name
+                os.environ["HTTPD_IMAGE_TAG"] = resources.GIT_HASH
+                os.environ["HTTPD_WAIT_TIMEOUT"] = str(args.docker_start_timeout)
+                pytest.main(["test"])
