@@ -3,6 +3,7 @@ import subprocess
 import os
 import shutil
 import pytest
+import container
 
 args = resources.BuildArgumentParser().parse_args()
 
@@ -11,6 +12,9 @@ if args.tag is not None:
 
 if not args.branch:
     raise Exception("Either --branch or --tag must be set")
+
+docker = container.DockerManager()
+
 
 if args.event_type == "cron":
     if args.branch == args.tag:
@@ -37,7 +41,7 @@ if args.event_type == "cron":
                 subprocess.run(["docker", "pull", "httpd:2.4"])
 
                 image = args.image_name + ":" + resources.GIT_HASH
-                if resources.is_image_downloaded(image) and resources.is_parent_image_upgraded(image, "httpd:2.4"):
+                if docker.is_image_downloaded(image) and docker.is_parent_image_upgraded(image, "httpd:2.4"):
                     command = [
                         "docker", "build", "--pull",
                         "--cache-from", f"{args.image_name}:{version_cache}",

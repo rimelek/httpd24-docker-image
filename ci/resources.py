@@ -89,21 +89,3 @@ def get_latest_stable_or_pre_version(branch):
 
     return latest_version if not latest_version else get_latest_version(branch=branch)
 
-
-def is_image_downloaded(image):
-    return subprocess.getstatusoutput("docker image inspect " + image)[0] == 0
-
-
-def get_image_layers(image):
-    inspect_template = r'{{range $key, $value := .RootFS.Layers}}{{printf "%s\n" $value}}{{end}}'
-    command = "docker image inspect -f '" + inspect_template + "' " + image
-
-    return subprocess.getoutput(command).strip().splitlines()
-
-
-def is_parent_image_upgraded(image, parent_image):
-    latest_parent_layer = get_image_layers(parent_image).pop()
-    layers = get_image_layers(image)
-
-    return latest_parent_layer not in layers
-
