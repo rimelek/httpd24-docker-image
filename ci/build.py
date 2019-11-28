@@ -22,11 +22,10 @@ if args.event_type == "cron":
             latest_version = resources.get_latest_stable_or_pre_version(args.branch)
             if latest_version:
                 version_cache = latest_version
-                command = ["docker", "pull",  f"{args.image_name}:{version_cache}"]
-                print(subprocess.list2cmdline(command))
 
+                print(f"docker pull {args.image_name}:{version_cache}")
                 if not args.dry_run:
-                    subprocess.run(command)
+                    docker.pull_image(args.image_name, version_cache)
 
                 build_dir = resources.PROJECT_ROOT + "/.build"
                 if os.path.isdir(build_dir):
@@ -38,7 +37,7 @@ if args.event_type == "cron":
 
                 # update git commit hash
                 resources.GIT_HASH = subprocess.getoutput("git rev-list -n 1 HEAD")
-                subprocess.run(["docker", "pull", "httpd:2.4"])
+                docker.pull_image("httpd", "2.4")
 
                 image = args.image_name + ":" + resources.GIT_HASH
                 if docker.is_image_downloaded(image) and docker.is_parent_image_upgraded(image, "httpd:2.4"):
@@ -62,13 +61,9 @@ if args.event_type == "cron":
 else:
     version_cache = args.branch + "-dev" if args.branch == args.tag else resources.GIT_HASH
 
-    command = [
-        "docker", "pull", args.image_name + ":" + version_cache
-    ]
-
-    print(subprocess.list2cmdline(command))
+    print(f"docker pull {args.image_name}:{version_cache}")
     if not args.dry_run:
-        subprocess.run(command)
+        docker.pull_image(args.image_name, version_cache)
 
     if args.branch == args.tag:
         command = [

@@ -23,3 +23,5 @@ class DockerManager(object):
         except docker.errors.ImageNotFound:
             return False
 
+    def pull_image(self, repository, tag):
+        return self.api.pull(repository, tag)
