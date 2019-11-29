@@ -25,3 +25,17 @@ class DockerManager(object):
 
     def pull_image(self, repository, tag):
         return self.api.pull(repository, tag)
+
+    def build_image(self, cache_from, names, path=None):
+        if not isinstance(names):
+            names = [names]
+
+        if path is None:
+            path = "."
+
+        self.api.build(cache_from=cache_from, tag=names[0], path=path, pull=True)
+        if len(names) > 1:
+            aliases = names[1:]
+            for alias in aliases:
+                repository, tag = alias.rsplit(":", 1) + [None]
+                self.api.tag(names[0], repository, tag)

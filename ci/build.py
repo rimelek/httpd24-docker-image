@@ -41,17 +41,13 @@ if args.event_type == "cron":
 
                 image = args.image_name + ":" + resources.GIT_HASH
                 if docker.is_image_downloaded(image) and docker.is_parent_image_upgraded(image, "httpd:2.4"):
-                    command = [
-                        "docker", "build", "--pull",
-                        "--cache-from", f"{args.image_name}:{version_cache}",
-                        "--tag", f"{image}",
-                        "--tag", f"{args.image_name}:build-{args.build_number}",
-                        ".",
-                    ]
-
-                    print(subprocess.list2cmdline(command))
+                    print(f"docker build --pull --cache-from {args.image_name}:{version_cache}"
+                          f" --tag {image} --tag {args.image_name}:build-{args.build_number}")
                     if not args.dry_run:
-                        subprocess.run(command)
+                        docker.build_image(f"{args.image_name}:{version_cache}", [
+                            f"{image}",
+                            f"{args.image_name}:build-{args.build_number}",
+                        ])
 
                     if not args.skip_test and os.path.exists("test/__init__.py"):
                         os.environ["HTTPD_IMAGE_NAME"] = args.image_name
@@ -73,7 +69,8 @@ else:
             "."
         ]
 
-        print(subprocess.list2cmdline(command))
+        print(f"docker build --pull --cache-from {args.image_name}:{version_cache}"
+              f" --tag {args.image_name}:{resources.GIT_HASH}")
         if not args.dry_run:
             subprocess.check_call(command)
             if not args.skip_test:
