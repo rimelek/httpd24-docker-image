@@ -17,7 +17,7 @@ docker = container.DockerManager()
 
 
 if args.event_type == "cron":
-    if args.branch == args.tag:
+    if args.branch != args.tag:
         if resources.is_minor_branch(args.branch):
             latest_version = resources.get_latest_stable_or_pre_version(args.branch)
             if latest_version:
@@ -55,13 +55,13 @@ if args.event_type == "cron":
                         os.environ["HTTPD_WAIT_TIMEOUT"] = str(args.docker_start_timeout)
                         pytest.main(["test"])
 else:
-    version_cache = args.branch + "-dev" if args.branch == args.tag else resources.GIT_HASH
+    version_cache = args.branch + "-dev" if args.branch != args.tag else resources.GIT_HASH
 
     print(f"docker pull {args.image_name}:{version_cache}")
     if not args.dry_run:
         docker.pull_image(args.image_name, version_cache)
 
-    if args.branch == args.tag:
+    if args.branch != args.tag:
         command = [
             "docker", "build", "--pull",
             "--cache-from", args.image_name + ":" + version_cache,
