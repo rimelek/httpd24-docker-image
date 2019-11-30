@@ -1,7 +1,7 @@
 import subprocess
 import os
 import shutil
-from itsziget.app import container, tester, resources
+from itsziget.app import container, tester, resources, vcs
 import docker.errors as docker_errors
 
 args = resources.BuildArgumentParser().parse_args()
@@ -18,6 +18,9 @@ testRunner = tester.TestRunner({
     "HTTPD_IMAGE_TAG": resources.GIT_HASH,
     "HTTPD_WAIT_TIMEOUT": str(args.docker_start_timeout)
 })
+git_main = vcs.Git(os.path.abspath(resources.PROJECT_ROOT))  # project level git
+git_build = vcs.Git(os.path.abspath(resources.BUILD_DIR))  # switch to the temporary build dir
+
 
 if args.event_type == "cron":
     if args.branch != args.tag:
@@ -30,16 +33,16 @@ if args.event_type == "cron":
                 if not args.dry_run:
                     docker.pull_image(args.image_name, version_cache)
 
-                build_dir = resources.PROJECT_ROOT + "/.build"
-                if os.path.isdir(build_dir):
-                    shutil.rmtree(build_dir)
+                if os.path.isdir(resources.BUILD_DIR):
+                    shutil.rmtree(resources.BUILD_DIR)
 
-                repository_url = subprocess.getoutput("git remote get-url " + args.repository_alias)
-                subprocess.run(["git", "clone", "--branch", "v" + latest_version, repository_url, build_dir])
-                os.chdir(build_dir)
+                repository_url = git_main.get_remote_url(args.repository_alias)
+                git_build.clone_version(latest_version, repository_url)
+                os.chdir(resources.BUILD_DIR)
 
                 # update git commit hash
-                resources.GIT_HASH = subprocess.getoutput("git rev-list -n 1 HEAD")
+                resources.GIT_HASH = git_build.get_last_commit_hash()
+
                 docker.pull_image("httpd", "2.4")
 
                 image = args.image_name + ":" + resources.GIT_HASH
