@@ -3,14 +3,17 @@ import pytest
 
 
 class TestRunner(object):
-    environment = []
+    def __init__(self, image_name=None, docker_start_timeout=None):
+        self.environment = {
+            "HTTPD_IMAGE_NAME": image_name,
+            "HTTPD_IMAGE_TAG": None,
+            "HTTPD_WAIT_TIMEOUT": str(docker_start_timeout)
+        }
 
-    def __init__(self, environment=None):
-        if environment is not None:
-            self.environment = environment
-
-    def run(self):
+    def run(self, httpd_image_tag):
         for key, value in self.environment.items():
             os.environ[key] = value
+
+        os.environ["HTTPD_IMAGE_TAG"] = httpd_image_tag
 
         pytest.main(["test"])
