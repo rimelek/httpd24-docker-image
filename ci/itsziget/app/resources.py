@@ -8,7 +8,7 @@ GIT_HASH = subprocess.run(["git", "rev-list", "-n", "1", "HEAD"], capture_output
 PATTERN_MINOR_BRANCH = '^([0-9]+\\.[0-9]+)(-dev)?$'
 PATTERN_STABLE_VERSION = '[0-9]+\\.[0-9]+\\.[0-9]+'
 PARENT_IMAGE = "httpd:2.4"
-PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__ + "/.."))
+PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__ + "/../../.."))
 
 
 class BuildArgumentParser(argparse.ArgumentParser):
