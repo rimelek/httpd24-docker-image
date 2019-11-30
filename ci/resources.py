@@ -2,6 +2,7 @@ import subprocess
 import re
 import argparse
 import os
+import pytest
 
 GIT_HASH = subprocess.run(["git", "rev-list", "-n", "1", "HEAD"], capture_output=True, text=True).stdout.strip()
 PATTERN_MINOR_BRANCH = '^([0-9]+\\.[0-9]+)(-dev)?$'
@@ -89,3 +90,10 @@ def get_latest_stable_or_pre_version(branch):
 
     return latest_version if not latest_version else get_latest_version(branch=branch)
 
+
+def run_tests(environment=None):
+    if environment is not None:
+        for key, value in environment.items():
+            os.environ[key] = value
+
+    pytest.main(["test"])

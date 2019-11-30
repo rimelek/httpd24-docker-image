@@ -51,10 +51,12 @@ if args.event_type == "cron":
                         ])
 
                     if not args.skip_test and os.path.exists("test/__init__.py"):
-                        os.environ["HTTPD_IMAGE_NAME"] = args.image_name
-                        os.environ["HTTPD_IMAGE_TAG"] = resources.GIT_HASH
-                        os.environ["HTTPD_WAIT_TIMEOUT"] = str(args.docker_start_timeout)
-                        pytest.main(["test"])
+                        resources.run_tests({
+                            "HTTPD_IMAGE_NAME": args.image_name,
+                            "HTTPD_IMAGE_TAG": resources.GIT_HASH,
+                            "HTTPD_WAIT_TIMEOUT": str(args.docker_start_timeout)
+                        })
+
 else:
     version_cache = args.branch + "-dev" if args.branch != args.tag else resources.GIT_HASH
 
@@ -71,7 +73,8 @@ else:
         if not args.dry_run:
             docker.build_image(f"{args.image_name}:{version_cache}", f"{args.image_name}:{resources.GIT_HASH}")
             if not args.skip_test:
-                os.environ["HTTPD_IMAGE_NAME"] = args.image_name
-                os.environ["HTTPD_IMAGE_TAG"] = resources.GIT_HASH
-                os.environ["HTTPD_WAIT_TIMEOUT"] = str(args.docker_start_timeout)
-                pytest.main(["test"])
+                resources.run_tests({
+                    "HTTPD_IMAGE_NAME": args.image_name,
+                    "HTTPD_IMAGE_TAG": resources.GIT_HASH,
+                    "HTTPD_WAIT_TIMEOUT": str(args.docker_start_timeout)
+                })
