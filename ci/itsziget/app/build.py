@@ -1,10 +1,8 @@
-import resources
 import subprocess
 import os
 import shutil
-import container
+from itsziget.app import container, tester, resources
 import docker.errors as docker_errors
-import tester
 
 args = resources.BuildArgumentParser().parse_args()
 
