@@ -25,7 +25,9 @@ class DockerManager(object):
             return False
 
     def pull_image(self, repository, tag):
-        return self.api.pull(repository, tag)
+        response = self.api.pull(repository, tag, stream=True, decode=True)
+        for line in response:
+            print(line)
 
     def build_image(self, cache_from, names, path=None):
         if not isinstance(cache_from, list):
