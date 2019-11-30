@@ -2,9 +2,9 @@ import resources
 import subprocess
 import os
 import shutil
-import pytest
 import container
 import docker.errors as docker_errors
+import tester
 
 args = resources.BuildArgumentParser().parse_args()
 
@@ -15,7 +15,11 @@ if not args.branch:
     raise Exception("Either --branch or --tag must be set")
 
 docker = container.DockerManager()
-
+testRunner = tester.TestRunner({
+    "HTTPD_IMAGE_NAME": args.image_name,
+    "HTTPD_IMAGE_TAG": resources.GIT_HASH,
+    "HTTPD_WAIT_TIMEOUT": str(args.docker_start_timeout)
+})
 
 if args.event_type == "cron":
     if args.branch != args.tag:
@@ -51,11 +55,7 @@ if args.event_type == "cron":
                         ])
 
                     if not args.skip_test and os.path.exists("test/__init__.py"):
-                        resources.run_tests({
-                            "HTTPD_IMAGE_NAME": args.image_name,
-                            "HTTPD_IMAGE_TAG": resources.GIT_HASH,
-                            "HTTPD_WAIT_TIMEOUT": str(args.docker_start_timeout)
-                        })
+                        testRunner.run()
 
 else:
     version_cache = args.branch + "-dev" if args.branch != args.tag else resources.GIT_HASH
@@ -73,8 +73,4 @@ else:
         if not args.dry_run:
             docker.build_image(f"{args.image_name}:{version_cache}", f"{args.image_name}:{resources.GIT_HASH}")
             if not args.skip_test:
-                resources.run_tests({
-                    "HTTPD_IMAGE_NAME": args.image_name,
-                    "HTTPD_IMAGE_TAG": resources.GIT_HASH,
-                    "HTTPD_WAIT_TIMEOUT": str(args.docker_start_timeout)
-                })
+                testRunner.run()

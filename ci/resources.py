@@ -89,11 +89,3 @@ def get_latest_stable_or_pre_version(branch):
     latest_version = get_latest_stable_version(branch=branch)
 
     return latest_version if not latest_version else get_latest_version(branch=branch)
-
-
-def run_tests(environment=None):
-    if environment is not None:
-        for key, value in environment.items():
-            os.environ[key] = value
-
-    pytest.main(["test"])
