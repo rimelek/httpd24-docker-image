@@ -4,6 +4,7 @@ import os
 import shutil
 import pytest
 import container
+import docker.errors as docker_errors
 
 args = resources.BuildArgumentParser().parse_args()
 
@@ -59,20 +60,16 @@ else:
 
     print(f"docker pull {args.image_name}:{version_cache}")
     if not args.dry_run:
-        docker.pull_image(args.image_name, version_cache)
+        try:
+            docker.pull_image(args.image_name, version_cache)
+        except docker_errors.ImageNotFound:
+            print(f"Notice: There is no built image named {args.image_name}:{version_cache} for cache")
 
     if args.branch != args.tag:
-        command = [
-            "docker", "build", "--pull",
-            "--cache-from", args.image_name + ":" + version_cache,
-            "--tag", args.image_name + ":" + resources.GIT_HASH,
-            "."
-        ]
-
         print(f"docker build --pull --cache-from {args.image_name}:{version_cache}"
               f" --tag {args.image_name}:{resources.GIT_HASH}")
         if not args.dry_run:
-            subprocess.check_call(command)
+            docker.build_image(f"{args.image_name}:{version_cache}", f"{args.image_name}:{resources.GIT_HASH}")
             if not args.skip_test:
                 os.environ["HTTPD_IMAGE_NAME"] = args.image_name
                 os.environ["HTTPD_IMAGE_TAG"] = resources.GIT_HASH

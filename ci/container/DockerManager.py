@@ -1,5 +1,6 @@
 import docker
 import docker.errors
+import json
 
 
 class DockerManager(object):
@@ -27,15 +28,26 @@ class DockerManager(object):
         return self.api.pull(repository, tag)
 
     def build_image(self, cache_from, names, path=None):
-        if not isinstance(names):
+        if not isinstance(cache_from, list):
+            cache_from = [cache_from]
+
+        if not isinstance(names, list):
             names = [names]
 
         if path is None:
             path = "."
 
-        self.api.build(cache_from=cache_from, tag=names[0], path=path, pull=True)
+        response = self.api.build(cache_from=cache_from, tag=names[0], path=path, pull=True)
+
+        for line in response:
+            print(json.loads(line.decode('utf-8')))
+
         if len(names) > 1:
             aliases = names[1:]
             for alias in aliases:
                 repository, tag = alias.rsplit(":", 1) + [None]
-                self.api.tag(names[0], repository, tag)
+                if self.api.tag(names[0], repository, tag):
+                    print(f"Successfully tagged {repository}:{tag}")
+                else:
+                    raise Exception(f"Failed to tag {repository}:{tag}")
+
