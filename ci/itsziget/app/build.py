@@ -49,7 +49,7 @@ if args.event_type == "cron":
                         ])
 
                     if not args.skip_test and os.path.exists("test/__init__.py"):
-                        testRunner.run()
+                        testRunner.run(git_build.get_last_commit_hash())
 
 else:
     git_hash = git_main.get_last_commit_hash()
@@ -68,4 +68,4 @@ else:
         if not args.dry_run:
             docker.build_image(f"{args.image_name}:{version_cache}", f"{args.image_name}:{git_hash}")
             if not args.skip_test:
-                testRunner.run()
+                testRunner.run(git_hash)
