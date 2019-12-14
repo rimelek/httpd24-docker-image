@@ -11,9 +11,9 @@ class TestRunner(object):
         }
 
     def run(self, httpd_image_tag):
+        self.environment["HTTPD_IMAGE_TAG"] = httpd_image_tag
+
         for key, value in self.environment.items():
             os.environ[key] = value
-
-        os.environ["HTTPD_IMAGE_TAG"] = httpd_image_tag
 
         pytest.main(["test"])
