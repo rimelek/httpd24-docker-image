@@ -8,7 +8,7 @@ git_build = vcs.Git(os.path.abspath(resources.BUILD_DIR))  # switch to the tempo
 
 args = resources.BuildArgumentParser(default_build_number=git_main.get_last_commit_hash()).parse_args()
 
-if args.tag is not None:
+if args.tag is not None and args.tag != "":
     args.branch = args.tag
 
 if not args.branch:
@@ -39,7 +39,11 @@ if args.event_type == "cron":
                 docker.pull_image("httpd", "2.4")
 
                 image = args.image_name + ":" + git_build.get_last_commit_hash()
-                if docker.is_image_downloaded(image) and docker.is_parent_image_upgraded(image, "httpd:2.4"):
+
+                if not docker.is_image_downloaded(image):
+                    docker.pull_image(args.image_name, git_build.get_last_commit_hash())
+
+                if docker.is_parent_image_upgraded(image, "httpd:2.4"):
                     print(f"docker build --pull --cache-from {args.image_name}:{version_cache}"
                           f" --tag {image} --tag {args.image_name}:build-{args.build_number}")
                     if not args.dry_run:
@@ -50,6 +54,8 @@ if args.event_type == "cron":
 
                     if not args.skip_test and os.path.exists("test/__init__.py"):
                         testRunner.run(git_build.get_last_commit_hash())
+                else:
+                    print("Parent image is not upgraded. New build is not necessary.")
 
 else:
     git_hash = git_main.get_last_commit_hash()
