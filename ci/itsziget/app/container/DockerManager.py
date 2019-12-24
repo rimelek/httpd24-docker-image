@@ -47,7 +47,7 @@ class DockerManager(object):
         if len(names) > 1:
             aliases = names[1:]
             for alias in aliases:
-                repository, tag = alias.rsplit(":", 1) + [None]
+                repository, tag, *rest = alias.rsplit(":", 1) + [None]
                 if self.api.tag(names[0], repository, tag):
                     print(f"Successfully tagged {repository}:{tag}")
                 else:
