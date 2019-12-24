@@ -80,18 +80,25 @@ if [ "${CI_EVENT_TYPE}" == "cron" ]; then
                 # update git commit hash
                 GIT_HASH="$(git rev-list -n 1 HEAD)"
                 docker pull httpd:2.4
-                if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:${GIT_HASH}")" ] && [ "$(isParentImageUpgraded "${CI_IMAGE_NAME}:${GIT_HASH}" "httpd:2.4")" == "true" ]; then
-                    COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" --tag "'${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}'" .'
 
-                    echo ${COMMAND}
-                    [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
+                image="${CI_IMAGE_NAME}:${GIT_HASH}"
+                if [ "$(isImageDownloaded "${image}")" != "true" ]; then
+                  docker pull "${image}"
+                fi
+                if [ "$(isParentImageUpgraded "${image}" "httpd:2.4")" == "true" ]; then
+                  COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" --tag "'${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}'" .'
 
-                    if [ "${CI_SKIP_TEST}" != "y" -a -f "test/__init__.py" ]; then
-                        TEST_COMMAND='HTTPD_IMAGE_NAME="'${CI_IMAGE_NAME}'" HTTPD_IMAGE_TAG="'${GIT_HASH}'" HTTPD_WAIT_TIMEOUT="'${CI_DOCKER_START_TIMEOUT}'" py.test';
-                        echo ${TEST_COMMAND}
-                        [ "${CI_DRY_RUN}" != "y" ] && eval "${TEST_COMMAND}";
-                    fi;
-                fi;
+                  echo ${COMMAND}
+                  [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
+
+                  if [ "${CI_SKIP_TEST}" != "y" -a -f "test/__init__.py" ]; then
+                      TEST_COMMAND='HTTPD_IMAGE_NAME="'${CI_IMAGE_NAME}'" HTTPD_IMAGE_TAG="'${GIT_HASH}'" HTTPD_WAIT_TIMEOUT="'${CI_DOCKER_START_TIMEOUT}'" py.test';
+                      echo ${TEST_COMMAND}
+                      [ "${CI_DRY_RUN}" != "y" ] && eval "${TEST_COMMAND}";
+                  fi;
+                else
+                  echo "Parent image is not upgraded. New build is not necessary."
+                fi
             fi;
         fi;
     fi;
