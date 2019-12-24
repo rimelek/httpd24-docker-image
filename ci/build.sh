@@ -65,7 +65,7 @@ reqVarNonEmpty GIT_HASH
 reqVarNonEmpty CI_EVENT_TYPE
 
 if [ "${CI_EVENT_TYPE}" == "cron" ]; then
-    if [ "$(isBranch)" ]; then
+    if [ "$(isBranch)" == "true" ]; then
         if [ "$(isMinorBranch)" == "true" ]; then
             LATEST_VERSION="$(getLatestStableOrPreVersion "${CI_BRANCH}")";
             if [ -n "${LATEST_VERSION}" ]; then
@@ -110,7 +110,7 @@ else
     echo ${COMMAND}
     [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
 
-    if [ "$(isBranch)" ]; then
+    if [ "$(isBranch)" == "true" ]; then
         COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" .'
         echo ${COMMAND}
         [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
