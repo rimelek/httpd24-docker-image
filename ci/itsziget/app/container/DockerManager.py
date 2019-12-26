@@ -45,11 +45,16 @@ class DockerManager(object):
             print(json.loads(line.decode('utf-8')))
 
         if len(names) > 1:
-            aliases = names[1:]
-            for alias in aliases:
-                repository, tag, *rest = alias.rsplit(":", 1) + [None]
-                if self.api.tag(names[0], repository, tag):
-                    print(f"Successfully tagged {repository}:{tag}")
-                else:
-                    raise Exception(f"Failed to tag {repository}:{tag}")
+            self.tag_image(names[0], names[1:])
 
+    def tag_image(self, image, aliases):
+
+        if not isinstance(aliases, list):
+            aliases = [aliases]
+
+        for alias in aliases:
+            repository, tag, *rest = alias.rsplit(":", 1) + [None]
+            if self.api.tag(image, repository, tag):
+                print(f"Successfully tagged {repository}:{tag}")
+            else:
+                raise Exception(f"Failed to tag {repository}:{tag}")
