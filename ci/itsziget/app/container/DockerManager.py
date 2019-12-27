@@ -58,3 +58,20 @@ class DockerManager(object):
                 print(f"Successfully tagged {repository}:{tag}")
             else:
                 raise Exception(f"Failed to tag {repository}:{tag}")
+
+    def push_image(self, images):
+        if not isinstance(images, list):
+            images = [images]
+
+        for image in images:
+            repository, tag, *rest = image.rsplit(":", 1) + [None]
+            self.api.push(repository, tag=tag)
+
+    def push_image_as(self, image, aliases):
+        self.tag_image(image, aliases)
+
+        if not isinstance(aliases, list):
+            aliases = [aliases]
+
+        for alias in aliases:
+            self.push_image(alias)
