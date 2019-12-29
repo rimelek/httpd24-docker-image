@@ -27,8 +27,15 @@ class Git(object):
     def get_last_commit_hash(self):
         return self.run_command("rev-list -n 1 HEAD", capture_output=True)
 
-    def get_versions(self, branch=None, stable=False):
-        response = self.run_command("tag --list v[0-9]* --sort -v:refname", capture_output=True)
+    def get_versions(self, branch=None, stable=False, major=None, minor=None):
+        pattern = "[0-9]"
+
+        if major is not None:
+            pattern = f"{major}."
+        if minor is not None:
+            pattern += f"{minor}."
+
+        response = self.run_command(f"tag --list v{pattern}* --sort -v:refname", capture_output=True)
 
         pattern_version = Git.pattern_stable_version if stable else Git.pattern_dev_version
 
