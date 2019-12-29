@@ -47,7 +47,7 @@ class Git(object):
         )
 
         if branch:
-            semantic_version_numbers = filter(lambda x: re.compile("^" + str(branch).replace(".", "\\.")).match(x),
+            semantic_version_numbers = filter(lambda x: re.compile("^" + str(branch + ".").replace(".", "\\.")).match(x),
                                               semantic_version_numbers)
 
         return list(semantic_version_numbers)
