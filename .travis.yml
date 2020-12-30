@@ -16,6 +16,7 @@ env:
 before_script:
   - pip install -r requirements.txt
   - chmod +x ./ci/build.sh
+  - echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
 
 script:
   - ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${TRAVIS_TAG}" -b "${TRAVIS_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${TRAVIS_EVENT_TYPE}" -B "${TRAVIS_BUILD_NUMBER}"
@@ -24,7 +25,6 @@ after_script:
   - docker images
 
 before_deploy:
-  - echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
   - chmod +x ./ci/deploy.sh
 
 deploy:
