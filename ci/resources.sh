@@ -188,7 +188,7 @@ dcdCommandGen () {
                 LATEST_VERSION="$(getLatestStableOrPreVersion "${CI_BRANCH}")";
                 if [ -n "${LATEST_VERSION}" ]; then
                     reqVarNonEmpty CI_BUILD_NUMBER
-                    if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}")" ]; then
+                    if [ "$(isImageDownloaded "${CI_IMAGE_NAME}:build-${CI_BUILD_NUMBER}")" == "true" ]; then
                         deployCommandGen -v "${LATEST_VERSION}" -i "${CI_IMAGE_NAME}" -t "build-${CI_BUILD_NUMBER}" -s
                     fi;
                 fi;
