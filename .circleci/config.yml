@@ -15,7 +15,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.12
-          docker_layer_caching: true
+          # The free plan does not support caching0
+          docker_layer_caching: false
       - run:
           name: Docker login
           command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
