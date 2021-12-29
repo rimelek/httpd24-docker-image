@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -eu -o pipefail
 
 PROJECT_ROOT="${0%/*}/..";
 cd "${PROJECT_ROOT}"
