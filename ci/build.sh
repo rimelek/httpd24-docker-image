@@ -106,7 +106,7 @@ else
     VERSION_CACHE=""
     if [ "$(isBranch)" == "true" ]; then
         VERSION_CACHE="$CI_BRANCH"
-        if [ "${VERSION_CACHE:0:-4}" != "-dev" ]; then
+        if [ "${VERSION_CACHE:${#VERSION_CACHE}-4}" != "-dev" ]; then
             VERSION_CACHE="${VERSION_CACHE}-dev"
         fi
     else
