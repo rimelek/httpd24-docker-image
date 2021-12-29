@@ -103,7 +103,15 @@ if [ "${CI_EVENT_TYPE}" == "cron" ]; then
         fi;
     fi;
 else
-    VERSION_CACHE=$([ "$(isBranch)" == "true" ] && echo "${CI_BRANCH}-dev" || echo "${GIT_HASH}")
+    VERSION_CACHE=""
+    if [ "$(isBranch)" == "true" ]; then
+        VERSION_CACHE="$CI_BRANCH"
+        if [ "${VERSION_CACHE:0:-4}" != "-dev" ]; then
+            VERSION_CACHE="${VERSION_CACHE}-dev"
+        fi
+    else
+        VERSION_CACHE="$GIT_HASH"
+    fi
 
 
     COMMAND='docker pull "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" || true'
@@ -111,7 +119,12 @@ else
     [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
 
     if [ "$(isBranch)" == "true" ]; then
-        COMMAND='docker build --pull --cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" .'
+        cache_from_args=()
+        COMMAND='docker image inspect "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" && cache_from_args=(--cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'")'
+        echo "$COMMAND"
+        [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
+
+        COMMAND='docker build --pull '${cache_from_args[*]}' --tag "'${CI_IMAGE_NAME}:${GIT_HASH}'" .'
         echo ${COMMAND}
         [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
         if [ "${CI_SKIP_TEST}" != "y" ]; then
