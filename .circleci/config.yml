@@ -23,6 +23,9 @@ jobs:
           name: Make build.sh executable
           command: chmod +x ./ci/build.sh
       - run:
+          name: Docker info
+          command: docker info
+      - run:
           name: Build Docker image
           command: |
 
