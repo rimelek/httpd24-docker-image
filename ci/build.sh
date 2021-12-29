@@ -120,7 +120,7 @@ else
 
     if [ "$(isBranch)" == "true" ]; then
         cache_from_args=()
-        COMMAND='docker image inspect "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" && cache_from_args=(--cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'")'
+        COMMAND='docker image inspect "'${CI_IMAGE_NAME}:${VERSION_CACHE}'" 1>/dev/null && cache_from_args=(--cache-from "'${CI_IMAGE_NAME}:${VERSION_CACHE}'") || true'
         echo "$COMMAND"
         [ "${CI_DRY_RUN}" != "y" ] && eval "${COMMAND}"
 
