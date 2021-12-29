@@ -1,0 +1,93 @@
+version: 2.1
+parameters:
+  CI_EVENT_TYPE:
+    type: string
+    default: "push"
+
+jobs:
+  build:
+    resource_class: small
+    environment:
+      CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
+    docker:
+      - image: cimg/python:3.5
+    steps:
+      - checkout
+      - run:
+          name: Docker login
+          command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
+      - run:
+          name: Install python requirements
+          command: pip install -r requirements.txt
+      - run:
+          name: Make build.sh executable
+          command: chmod +x ./ci/build.sh
+      - run:
+          name: Build Docker image
+          command: |
+
+            # the empty line above is for pycharm syntax highlighting...
+            ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
+      - run:
+          name: List docker images
+          command: docker image ls
+
+  deploy:
+    resource_class: small
+    environment:
+      CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
+    docker:
+      - image: cimg/python:3.5
+    steps:
+      - checkout
+      - run:
+          name: Docker login
+          command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
+      - run:
+          name: Install python requirements
+          command: pip install -r requirements.txt
+      - run:
+          name: Make build.sh executable
+          command: chmod +x ./ci/deploy.sh
+      - run:
+          name: Deploy Docker image
+          command: |
+
+            # the empty line above is for pycharm syntax highlighting...
+            ./ci/deploy.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
+
+workflows:
+  version: 2
+  branch-build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - /^\d+\.\d+(-dev)?$/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - /^\d+\.\d+(-dev)?$/
+
+  tag-build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /^.*$/
+            tags:
+              only:
+                - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /^.*$/
+            tags:
+              only:
+                - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
