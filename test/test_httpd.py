@@ -17,7 +17,7 @@ def httpd_fixture_with_deps(name, dependencies, *params):
 def test_reverse_proxy_localhost(httpd_reverse_proxy_localhost):
     httpd = httpd_reverse_proxy_localhost
 
-    output = httpd.exec_conf_check('conf/httpd.conf', '^Include conf/custom-extra/reverse-proxy\.conf')
+    output = httpd.exec_conf_check('conf/httpd.conf', '^Include conf/custom-extra/reverse-proxy\\.conf')
     assert len(output) == 1
 
     output = httpd.exec_conf_check('conf/custom-extra/reverse-proxy.conf', '^RemoteIPInternalProxy localhost')
@@ -30,10 +30,10 @@ def test_reverse_proxy_localhost(httpd_reverse_proxy_localhost):
 def test_reverse_proxy_ip(httpd_reverse_proxy_ip):
     httpd = httpd_reverse_proxy_ip
 
-    output = httpd.exec_conf_check('conf/httpd.conf', '^Include conf/custom-extra/reverse-proxy\.conf')
+    output = httpd.exec_conf_check('conf/httpd.conf', '^Include conf/custom-extra/reverse-proxy\\.conf')
     assert len(output) == 1
 
-    output = httpd.exec_conf_check('conf/custom-extra/reverse-proxy.conf', '^RemoteIPInternalProxy 10\.1\.0\.0/16')
+    output = httpd.exec_conf_check('conf/custom-extra/reverse-proxy.conf', '^RemoteIPInternalProxy 10\\.1\\.0\\.0/16')
     assert len(output) == 1
 
     output = httpd.exec_conf_check('conf/custom-extra/reverse-proxy.conf', '^RemoteIPHeader X-Client-Ip')
@@ -51,7 +51,7 @@ if os.getenv('PYTEST_SKIP_SSL') != '1':
     def test_ssl(httpd_ssl):
         httpd = httpd_ssl
 
-        output = httpd.exec_conf_check('conf/httpd.conf', '^Include conf/custom-extra/ssl\.conf')
+        output = httpd.exec_conf_check('conf/httpd.conf', '^Include conf/custom-extra/ssl\\.conf')
         assert len(output) == 1
 
         assert httpd.exec_file_exists('ssl/custom.key')
