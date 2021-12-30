@@ -6,11 +6,13 @@ parameters:
 
 jobs:
   build:
-    resource_class: small
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
+    resource_class: medium
     machine:
       image: ubuntu-2004:202111-02
+      python:
+        version: 3.8.12
     steps:
       - checkout
 #       - setup_remote_docker:
