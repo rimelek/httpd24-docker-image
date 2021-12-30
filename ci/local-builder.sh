@@ -7,6 +7,6 @@ set -eu -o pipefail
 
   workdir="$(cd .. && pwd)"
 
-  docker-compose-v1 -f local-builder.yml build
-  docker-compose-v1 -f local-builder.yml run --rm -v "$workdir:$workdir" --workdir "$workdir" ci bash
+  docker-compose -f local-builder.yml build
+  docker-compose -f local-builder.yml run --rm -v "$workdir:$workdir" --workdir "$workdir" ci "$@"
 )
