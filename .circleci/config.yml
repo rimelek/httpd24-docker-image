@@ -9,6 +9,7 @@ jobs:
     resource_class: small
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
+      COPY_MODE: 1
     docker:
       - image: cimg/python:3.7
     steps:
@@ -38,7 +39,7 @@ jobs:
           command: |
 
             # the empty line above is for pycharm syntax highlighting...
-            ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
+            ./ci/local-builder.sh ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
       - run:
           name: List docker images
           command: docker image ls
