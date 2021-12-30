@@ -1,10 +1,13 @@
 from seaworthy.definitions import ContainerDefinition
-from seaworthy.logs import output_lines
+from seaworthy.utils import output_lines
 from test.definitions.client import ContainerHttpClient
 import os
 
 
 class HttpdContainer(ContainerDefinition):
+    def clean(self):
+        pass
+
     IMAGE_REPO = os.getenv('HTTPD_IMAGE_NAME', 'localhost/httpd24')
     IMAGE_TAG = os.getenv('HTTPD_IMAGE_TAG', 'dev')
     WAIT_PATTERNS = [
