@@ -23,7 +23,7 @@ jobs:
           command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
       - run:
           name: Install python requirements
-          command: pip install -r requirements.txt
+          command: pip install -r ci/requirements.txt
       - run:
           name: Make build.sh executable
           command: chmod +x ./ci/build.sh
@@ -53,7 +53,7 @@ jobs:
           command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
       - run:
           name: Install python requirements
-          command: pip install -r requirements.txt
+          command: pip install -r ci/requirements.txt
       - run:
           name: Make build.sh executable
           command: chmod +x ./ci/deploy.sh
