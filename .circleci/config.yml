@@ -25,6 +25,9 @@ jobs:
           name: Install python requirements
           command: pip install -r ci/requirements.txt
       - run:
+          name: Debug python packages
+          command: pip freeze | sort
+      - run:
           name: Make build.sh executable
           command: chmod +x ./ci/build.sh
       - run:
