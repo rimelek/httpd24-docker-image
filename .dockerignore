@@ -1,2 +1,6 @@
 *
 !apache2
+!ci
+!test
+!.git
+!Dockerfile
