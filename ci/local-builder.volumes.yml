@@ -4,3 +4,4 @@ services:
   ci:
     volumes:
       - "$WORKDIR:$WORKDIR"
+      - "$HOME/.docker/config.json:/home/circleci/.docker/config.json"
