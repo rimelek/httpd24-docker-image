@@ -8,9 +8,10 @@ jobs:
   build:
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
-    resource_class: small
+    resource_class: medium
     machine:
       image: ubuntu-2004:202111-02
+#     resource_class: small
 #     docker:
 #       image: cimg/python:3.8
     steps:
@@ -23,12 +24,12 @@ jobs:
       - run:
           name: Docker login
           command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
-      - run:
-          name: Install python requirements
-          command: pip install -r ci/requirements.txt
-      - run:
-          name: Debug python packages
-          command: pip freeze | sort
+#       - run:
+#           name: Install python requirements
+#           command: pip install -r ci/requirements.txt
+#       - run:
+#           name: Debug python packages
+#           command: pip freeze | sort
       - run:
           name: Make build.sh executable
           command: chmod +x ./ci/build.sh
