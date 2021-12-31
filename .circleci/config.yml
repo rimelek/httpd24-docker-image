@@ -47,19 +47,22 @@ jobs:
           command: docker image ls
 
   deploy:
-    resource_class: small
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
-    docker:
-      - image: cimg/python:3.7
+    resource_class: medium
+    machine:
+      image: ubuntu-2004:202111-02
+#     resource_class: small
+#     docker:
+#       - image: cimg/python:3.7
     steps:
       - checkout
       - run:
           name: Docker login
           command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
-      - run:
-          name: Install python requirements
-          command: pip install -r ci/requirements.txt
+#       - run:
+#           name: Install python requirements
+#           command: pip install -r ci/requirements.txt
       - run:
           name: Make build.sh executable
           command: chmod +x ./ci/deploy.sh
