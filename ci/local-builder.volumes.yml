@@ -1,7 +1,10 @@
 version: "3.7"
 
+volumes:
+  home:
+
 services:
   ci:
     volumes:
       - "$WORKDIR:$WORKDIR"
-      - "$HOME/.docker/config.json:/home/circleci/.docker/config.json"
+      - home:/home/circleci

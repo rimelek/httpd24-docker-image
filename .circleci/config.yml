@@ -23,7 +23,7 @@ jobs:
 #           docker_layer_caching: false
       - run:
           name: Docker login
-          command: echo "${DOCKER_HUB_PASS}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
+          command: ./ci/local-builder.sh bash -c "echo \"${DOCKER_HUB_PASS}\" | docker login -u \"${DOCKER_HUB_USER}\" --password-stdin"
 #       - run:
 #           name: Install python requirements
 #           command: pip install -r ci/requirements.txt
