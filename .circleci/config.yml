@@ -31,9 +31,6 @@ jobs:
 #           name: Debug python packages
 #           command: pip freeze | sort
       - run:
-          name: Make build.sh executable
-          command: chmod +x ./ci/build.sh
-      - run:
           name: Docker info
           command: docker info
       - run:
@@ -47,14 +44,11 @@ jobs:
           command: docker image ls
 
       - run:
-          name: Make build.sh executable
-          command: chmod +x ./ci/deploy.sh
-      - run:
           name: Deploy Docker image
           command: |
 
             # the empty line above is for pycharm syntax highlighting...
-            ./ci/deploy.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
+            ./ci/local-builder.sh ./ci/deploy.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
 
 workflows:
   version: 2
