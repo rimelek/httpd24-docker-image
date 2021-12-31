@@ -8,11 +8,11 @@ jobs:
   build:
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
-    resource_class: medium
+    resource_class: small
     machine:
       image: ubuntu-2004:202111-02
-      python:
-        version: 3.8.12
+#     docker:
+#       image: cimg/python:3.8
     steps:
       - checkout
 #       - setup_remote_docker:
@@ -40,7 +40,7 @@ jobs:
           command: |
 
             # the empty line above is for pycharm syntax highlighting...
-            ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
+            ./ci-local-builder.sh ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
       - run:
           name: List docker images
           command: docker image ls
