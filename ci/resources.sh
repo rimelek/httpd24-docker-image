@@ -123,7 +123,7 @@ deployCommandGen () (
     local LATEST_VERSION
     local LATEST_MINOR
     local LATEST_MAJOR
-    local CUSTOM_TAGS
+    local CUSTOM_TAGS=""
     local IMAGE_NAME
     local IMAGE_TAG="${GIT_HASH}"
     local OPTIND
