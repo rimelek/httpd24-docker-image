@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 export PROJECT_ROOT="${0%/*}/.."
 cd "$PROJECT_ROOT"
