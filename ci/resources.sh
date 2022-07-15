@@ -119,12 +119,12 @@ isImageDownloaded () {
 deployCommandGen () (
     local GIT_HASH="$(git rev-list -n 1 HEAD)"
     local SEMANTIC_VERSION="false"
-    local CURRENT_VERSION
-    local LATEST_VERSION
-    local LATEST_MINOR
-    local LATEST_MAJOR
+    local CURRENT_VERSION=""
+    local LATEST_VERSION=""
+    local LATEST_MINOR=""
+    local LATEST_MAJOR=""
     local CUSTOM_TAGS=""
-    local IMAGE_NAME
+    local IMAGE_NAME=""
     local IMAGE_TAG="${GIT_HASH}"
     local OPTIND
     local OPTARG
