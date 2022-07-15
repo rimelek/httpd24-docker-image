@@ -70,9 +70,9 @@ reqVarNonEmpty CI_EVENT_TYPE
 if [[ "$CI_EVENT_TYPE" == "cron" ]]; then
   if [[ "$(isBranch)" == "true" ]]; then
     if [[ "$(isMinorBranch)" == "true" ]]; then
-      echo source "$PROJECT_ROOT/ci/build.cron.sh"
+      source "$PROJECT_ROOT/ci/build.cron.sh"
     fi
   fi
 else
-  echo source "$PROJECT_ROOT/ci/build.push.sh"
+  source "$PROJECT_ROOT/ci/build.push.sh"
 fi
