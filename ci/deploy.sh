@@ -61,6 +61,10 @@ VERSION=$(echo "$CI_BRANCH" | trimVersionFlag)
 
 DCD_COMMAND="$(dcdCommandGen)"
 
+# debugging missing tags
+echo "Images:"
+docker image ls
+
 echo "DCD COMMAND:"
 echo "$DCD_COMMAND"
 
