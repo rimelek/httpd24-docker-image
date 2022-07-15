@@ -37,7 +37,7 @@ isMinorBranch() {
 
   local RESULT
   RESULT="$(echo "$CI_BRANCH" | sed 's/'"$PATTERN_MINOR_BRANCH"'//g')"
-  [[ -z "${RESULT}" ]] && echo 'true' || echo 'false'
+  [[ -z "$RESULT" ]] && echo 'true' || echo 'false'
 }
 
 getVersions() {
@@ -74,7 +74,7 @@ getLatestStableOrPreVersion() {
   if [[ -z "$LATEST_VERSION" ]]; then
     LATEST_VERSION="$(getLatestVersion "$BRANCH")"
   fi
-  echo "${LATEST_VERSION}"
+  echo "$LATEST_VERSION"
 }
 
 isValidSemanticVersion() {
@@ -184,7 +184,7 @@ deployCommandGen() (
       [[ -z "$LATEST_VERSION" ]] && LATEST_VERSION="$(getLatestStableVersion)"
       [[ "$LATEST_MINOR" == "$CURRENT_VERSION" ]] && pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)"
       [[ "$LATEST_MAJOR" == "$CURRENT_VERSION" ]] && pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1)"
-      [[ "${LATEST_VERSION}" == "${CURRENT_VERSION}" ]] && [[ -n "$LATEST_VERSION" ]] && pushAs latest
+      [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]] && [[ -n "$LATEST_VERSION" ]] && pushAs latest
     fi
   fi
 
@@ -217,9 +217,9 @@ dcdCommandGen() {
     fi
   else
     if [ "$(isValidSemanticVersion "$VERSION")" == "true" ]; then
-      deployCommandGen -v "$VERSION" -i "${CI_IMAGE_NAME}" -s
+      deployCommandGen -v "$VERSION" -i "$CI_IMAGE_NAME" -s
     elif [ "$(isMinorBranch "$VERSION")" == "true" ]; then
-      deployCommandGen -T "$(toMinorDevVersion "$VERSION}")" -i "$CI_IMAGE_NAME"
+      deployCommandGen -T "$(toMinorDevVersion "$VERSION")" -i "$CI_IMAGE_NAME"
     fi
   fi
 
