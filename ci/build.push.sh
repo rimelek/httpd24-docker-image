@@ -10,6 +10,10 @@ echo "Trying to pull cache image..."
 docker pull "$CI_IMAGE_NAME:$VERSION_CACHE" || true
 
 if [ "$(isBranch)" == "true" ]; then
+  echo "Download python requirements: "
+  echo
+  pip install -r requirements.txt
+
   echo "Setting cache image..."
   cache_from_args=()
   if docker image inspect "$CI_IMAGE_NAME:$VERSION_CACHE" 1>/dev/null; then

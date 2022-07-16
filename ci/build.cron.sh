@@ -11,12 +11,20 @@ BUILD_DIR="/tmp/.build"
 if [[ -d "$BUILD_DIR" ]]; then
   rm -rf "$BUILD_DIR"
 fi
-if [[ "${CI_REPOSITORY_URL+x}" == "x" ]]; then
+if [[ "${CI_REPOSITORY_URL-x}" == "x" ]]; then
   CI_REPOSITORY_URL="$(git remote get-url "$CI_REPOSITORY_ALIAS")"
 fi
 
+echo "Cloning from $CI_REPOSITORY_URL"
+echo
+
 git clone --branch "v$LATEST_VERSION" "$CI_REPOSITORY_URL" "$BUILD_DIR"
 cd "$BUILD_DIR"
+
+echo "Download python requirements: "
+echo
+pip install -r requirements.txt
+
 # update git commit hash
 GIT_HASH="$(git rev-list -n 1 HEAD)"
 docker pull httpd:2.4
