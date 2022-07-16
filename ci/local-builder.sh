@@ -24,7 +24,7 @@ compose=(docker-compose -f local-builder.yml)
 
   "${compose[@]}" up -d
   set +e
-  "${compose[@]}" exec ci --user 0 bash -c "mkdir -p $workdir/../var && chown -R circleci $PWD/../var"
+  "${compose[@]}" exec --user 0 ci bash -c "mkdir -p $workdir/../var && chown -R circleci $PWD/../var"
   "${compose[@]}" exec ci "$@"
   err=$?
   set -e
