@@ -3,11 +3,15 @@ parameters:
   CI_EVENT_TYPE:
     type: string
     default: "push"
+  CI_GIT_REMOTE_URL:
+    type: string
+    default: ""
 
 jobs:
   build:
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
+      CI_GIT_REMOTE_URL: "<< pipeline.parameters.CI_GIT_REMOTE_URL >>"
     resource_class: medium
     machine:
       image: ubuntu-2004:202111-02

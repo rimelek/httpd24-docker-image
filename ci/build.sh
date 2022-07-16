@@ -27,6 +27,7 @@ while getopts ":t:b:i:T:e:r:B:dhs" opt; do
   i) CI_IMAGE_NAME="$OPTARG" ;;
   s) CI_SKIP_TEST="y" ;;
   r) CI_REPOSITORY_ALIAS="$OPTARG" ;;
+  R) CI_REPOSITORY_URL="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
   e)
     case "$OPTARG" in
@@ -46,6 +47,7 @@ while getopts ":t:b:i:T:e:r:B:dhs" opt; do
     echo -e "\t-s\t\tSkip running tests"
     echo -e "\t-e <string>\tEvent type. Valid types: "
     echo -e "\t-r <string>\tRemote repository alias. Default: origin"
+    echo -e "\t-R <string>\tRemote repository URL. Default: the url of the repository alias"
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
     echo -e "\t-h\t\tShows this help message"
     exit 0
