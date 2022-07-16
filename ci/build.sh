@@ -17,9 +17,10 @@ export CI_SKIP_TEST=""
 export CI_DOCKER_START_TIMEOUT="180"
 export CI_EVENT_TYPE=""
 export CI_REPOSITORY_ALIAS="origin"
+export CI_REPOSITORY_URL=""
 export CI_BUILD_NUMBER="$GIT_HASH"
 
-while getopts ":t:b:i:T:e:r:B:dhs" opt; do
+while getopts ":t:b:i:T:e:r:R:B:dhs" opt; do
   case $opt in
   t) CI_TAG="$OPTARG" ;;
   T) CI_DOCKER_START_TIMEOUT="$OPTARG" ;;
