@@ -1,7 +1,7 @@
 
 LATEST_VERSION="$(getLatestStableOrPreVersion "$CI_BRANCH")"
 if [[ -z "$LATEST_VERSION" ]]; then
-  echo "There is no stable version nor pre-release $CI_BRANCH"
+  write_info "There is no stable version nor pre-release $CI_BRANCH"
   exit 0
 fi
 
@@ -15,36 +15,51 @@ if [[ "${CI_REPOSITORY_URL-x}" == "x" ]]; then
   CI_REPOSITORY_URL="$(git remote get-url "$CI_REPOSITORY_ALIAS")"
 fi
 
-echo "Cloning from $CI_REPOSITORY_URL"
-echo
-
+write_info "Cloning from $CI_REPOSITORY_URL"
 git clone --branch "v$LATEST_VERSION" "$CI_REPOSITORY_URL" "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-echo "Download python requirements: "
-echo
+write_info "Download python requirements: "
 pip install -r requirements.txt
 
 # update git commit hash
 GIT_HASH="$(git rev-list -n 1 HEAD)"
+write_info "Download httpd:2.4 to see if it was upgraded since the last build"
 docker pull httpd:2.4
 
 image="$CI_IMAGE_NAME:$GIT_HASH"
+write_info "Check if $image is available locally"
 if [[ "$(isImageDownloaded "$image")" != "true" ]]; then
+  write_info "Pull $image to compare with httpd:2.4"
   docker pull "$image"
 fi
+
+write_info "Check if httpd:2.4 is the parent of $image, which means httpd:2.4 was upgraded since the last update."
 if [[ "$(isParentImageUpgraded "$image" "httpd:2.4")" == "true" ]]; then
+
+  write_info "Build the new docker image using $CI_IMAGE_NAME:$VERSION_CACHE as cache".
+  write_info "Add the following tags to the image: "
+  write_info "- $CI_IMAGE_NAME:$GIT_HASH"
+  write_info "- $CI_IMAGE_NAME:build-$CI_BUILD_NUMBER"
+
   docker build . --pull \
     --cache-from "$CI_IMAGE_NAME:$VERSION_CACHE" \
     --tag "$CI_IMAGE_NAME:$GIT_HASH" \
     --tag "$CI_IMAGE_NAME:build-$CI_BUILD_NUMBER"
 
-  if [[ "${CI_SKIP_TEST}" != "y" ]] && [[ -f "test/__init__.py" ]]; then
+  write_info "Check if the test was not set to be skipped and the python test exists."
+
+  if [[ "$CI_SKIP_TEST" != "y" ]] && [[ -f "test/__init__.py" ]]; then
+
+    write_info "Start testing..."
+
     export HTTPD_IMAGE_NAME="$CI_IMAGE_NAME"
     export HTTPD_IMAGE_TAG="$GIT_HASH"
     export HTTPD_WAIT_TIMEOUT="$CI_DOCKER_START_TIMEOUT"
     py.test
+
+    write_info "All tests are finished"
   fi
 else
-  echo "Parent image is not upgraded. New build is not necessary."
+  write_info "Parent image is not upgraded. New build is not necessary."
 fi
