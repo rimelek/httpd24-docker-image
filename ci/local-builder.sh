@@ -13,6 +13,8 @@ compose=(docker-compose -f local-builder.yml)
 
   workdir="$(cd .. && pwd)"
 
+  echo "Workdir: $workdir"
+
   "${compose[@]}" build --build-arg "WORKDIR=$workdir"
 
   echo "COPY_MODE: $COPY_MODE"
@@ -24,7 +26,7 @@ compose=(docker-compose -f local-builder.yml)
 
   "${compose[@]}" up -d
   set +e
-  "${compose[@]}" exec --user 0 ci bash -c "mkdir -p $workdir/../var && chown -R circleci:circleci $workdir/../var"
+  "${compose[@]}" exec --user 0 ci bash -c "mkdir -p $workdir/var && chown -R circleci:circleci $workdir/var"
   "${compose[@]}" exec ci "$@"
   err=$?
   set -e
