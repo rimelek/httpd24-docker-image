@@ -12,7 +12,7 @@ docker pull "$CI_IMAGE_NAME:$VERSION_CACHE" || true
 if [ "$(isBranch)" == "true" ]; then
   echo "Download python requirements: "
   echo
-  pip install -r requirements.txt
+  pip install -r "$PROJECT_ROOT/ci/requirements.txt"
 
   echo "Setting cache image..."
   cache_from_args=()
