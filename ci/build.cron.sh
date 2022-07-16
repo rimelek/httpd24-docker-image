@@ -11,7 +11,11 @@ BUILD_DIR="/tmp/.build"
 if [[ -d "$BUILD_DIR" ]]; then
   rm -rf "$BUILD_DIR"
 fi
-git clone --branch "v$LATEST_VERSION" "$(git remote get-url "$CI_REPOSITORY_ALIAS")" "$BUILD_DIR"
+if [[ "${CI_GIT_REMOTE_URL+x}" == "x" ]]; then
+  CI_GIT_REMOTE_URL="$(git remote get-url "$CI_REPOSITORY_ALIAS")"
+fi
+
+git clone --branch "v$LATEST_VERSION" "$CI_GIT_REMOTE_URL" "$BUILD_DIR"
 cd "$BUILD_DIR"
 # update git commit hash
 GIT_HASH="$(git rev-list -n 1 HEAD)"
