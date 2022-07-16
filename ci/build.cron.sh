@@ -7,7 +7,7 @@ fi
 
 VERSION_CACHE="$LATEST_VERSION"
 docker pull "$CI_IMAGE_NAME:$VERSION_CACHE" || true
-BUILD_DIR="$PROJECT_ROOT/.build"
+BUILD_DIR="/tmp/.build"
 if [[ -d "$BUILD_DIR" ]]; then
   rm -rf "$BUILD_DIR"
 fi
