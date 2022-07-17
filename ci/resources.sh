@@ -215,8 +215,6 @@ deployCommandGen() (
 
     pushAs "$CURRENT_VERSION"
 
-    local IS_PRE_RELEASE
-    IS_PRE_RELEASE="$(isPreRelease "$CURRENT_VERSION")"
     if [[ "$SEMANTIC_VERSION" == "true" ]]; then
       if [[ -z "$LATEST_MINOR" ]]; then
         # LATEST_MINOR="$(getLatestStableVersion "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)")"

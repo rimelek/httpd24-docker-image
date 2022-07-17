@@ -24,18 +24,18 @@ pip install -r requirements.txt
 
 # update git commit hash
 GIT_HASH="$(git rev-list -n 1 HEAD)"
-write_info "Download httpd:2.4 to see if it was upgraded since the last build"
-docker pull httpd:2.4
+write_info "Download $PARENT_IMAGE to see if it was upgraded since the last build"
+docker pull "$PARENT_IMAGE"
 
 image="$CI_IMAGE_NAME:$GIT_HASH"
 write_info "Check if $image is available locally"
 if [[ "$(isImageDownloaded "$image")" != "true" ]]; then
-  write_info "Pull $image to compare with httpd:2.4"
+  write_info "Pull $image to compare with $PARENT_IMAGE"
   docker pull "$image"
 fi
 
-write_info "Check if httpd:2.4 is the parent of $image, which means httpd:2.4 was upgraded since the last update."
-if [[ "$(isParentImageUpgraded "$image" "httpd:2.4")" == "true" ]]; then
+write_info "Check if $PARENT_IMAGE is the parent of $image, which means httpd:2.4 was upgraded since the last update."
+if [[ "$(isParentImageUpgraded "$image" "$PARENT_IMAGE")" == "true" ]]; then
 
   write_info "Build the new docker image using $CI_IMAGE_NAME:$VERSION_CACHE as cache".
   write_info "Add the following tags to the image: "
