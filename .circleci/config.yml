@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  snyk: snyk/snyk@1.2.3
 parameters:
   CI_EVENT_TYPE:
     type: string
@@ -12,47 +14,26 @@ jobs:
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
       CI_REPOSITORY_URL: "<< pipeline.parameters.CI_REPOSITORY_URL >>"
+      HTTPD_IMAGE_NAME: rimelek/httpd24
+      HTTPD_IMAGE_NAME_ALTERNATIVE: "itsziget/httpd24"
     resource_class: medium
     machine:
       image: ubuntu-2004:202111-02
-#     resource_class: small
-#     docker:
-#       image: cimg/python:3.8
     steps:
       - checkout
-#       - setup_remote_docker:
-#           # CircleCI still does not support 20.10.12
-#           version: 20.10.11
-#           # The free plan does not support caching0
-#           docker_layer_caching: false
       - run:
           name: Docker login
-          command: ./ci/local-builder.sh bash -c "echo \"${DOCKER_HUB_PASS}\" | docker login -u \"${DOCKER_HUB_USER}\" --password-stdin"
-#       - run:
-#           name: Install python requirements
-#           command: pip install -r ci/requirements.txt
-#       - run:
-#           name: Debug python packages
-#           command: pip freeze | sort
-      - run:
-          name: Docker info
-          command: docker info
+          command: ./ci/local-builder.sh bash -c "echo \"$DOCKER_HUB_PASS\" | docker login -u \"$DOCKER_HUB_USER\" --password-stdin"
       - run:
           name: Build Docker image
-          command: |
-
-            # the empty line above is for pycharm syntax highlighting...
-            ./ci/local-builder.sh ./ci/build.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -T "${HTTPD_WAIT_TIMEOUT}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}" -R "${CI_REPOSITORY_URL}"
+          command: ./.circleci/step-build-docker-image.sh
       - run:
           name: List docker images
           command: docker image ls
 
       - run:
           name: Deploy Docker image
-          command: |
-
-            # the empty line above is for pycharm syntax highlighting...
-            ./ci/local-builder.sh ./ci/deploy.sh -i "${HTTPD_IMAGE_NAME}" -t "${CIRCLE_TAG}" -b "${CIRCLE_BRANCH}" -e "${CI_EVENT_TYPE}" -B "circleci-${CIRCLE_BUILD_NUM}"
+          command: ./.circleci/step-deploy-docker-image.sh
 
 workflows:
   version: 2

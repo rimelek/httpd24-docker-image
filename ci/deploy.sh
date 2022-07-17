@@ -10,14 +10,16 @@ source "$PROJECT_ROOT/ci/resources.sh"
 CI_BRANCH=""
 CI_TAG=""
 CI_IMAGE_NAME=""
+CI_IMAGE_NAME_ALTERNATIVE=""
 CI_EVENT_TYPE=""
 CI_BUILD_NUMBER="${GIT_HASH}"
 
-while getopts ":t:b:i:e:B:dh" opt; do
+while getopts ":t:b:i:I:e:B:dh" opt; do
   case $opt in
   t) CI_TAG="$OPTARG" ;;
   b) CI_BRANCH="$OPTARG" ;;
   i) CI_IMAGE_NAME="$OPTARG" ;;
+  I) CI_IMAGE_NAME_ALTERNATIVE="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
   e)
     case "$OPTARG" in
@@ -34,6 +36,7 @@ while getopts ":t:b:i:e:B:dh" opt; do
     echo -e "\t-t <string>\tGit commit tag if the build was triggered by tag. Do not use it anyway!"
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"
     echo -e "\t-i <string>\tDocker image name without version tag."
+    echo -e "\t-I <string>\tAlternative Docker image name without version tag. Can be used to push to a second repository."
     echo -e "\t-e <string>\tEvent type. Valid types: "
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
     echo -e "\t-h\t\tShows this help message"

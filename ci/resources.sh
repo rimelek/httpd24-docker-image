@@ -180,13 +180,14 @@ function deployCommandGen() (
   local OPTIND
   local OPTARG
 
-  while getopts ":v:l:m:M:i:t:T:s" opt; do
+  while getopts ":v:l:m:M:i:I:t:T:s" opt; do
     case $opt in
     v) CURRENT_VERSION="$OPTARG" ;;
     l) LATEST_VERSION="$OPTARG" ;;
     m) LATEST_MINOR="$OPTARG" ;;
     M) LATEST_MAJOR="$OPTARG" ;;
     i) IMAGE_NAME="$OPTARG" ;;
+    I) IMAGE_NAME_ALTERNATIVE="$OPTARG" ;;
     t) IMAGE_TAG="$OPTARG" ;;
     s) SEMANTIC_VERSION="true" ;;
     T) CUSTOM_TAGS="$CUSTOM_TAGS $OPTARG" ;;
@@ -198,8 +199,18 @@ function deployCommandGen() (
   done
   shift $((OPTIND - 1))
 
-  function tag() { echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""; }
-  function push() { echo "docker push \"$IMAGE_NAME:$1\""; }
+  function tag() {
+    echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""
+    if [[ "${IMAGE_NAME_ALTERNATIVE+x}" == "x" ]] && [[ -n "$IMAGE_NAME_ALTERNATIVE" ]]; then
+      echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME_ALTERNATIVE:$1\""
+    fi
+  }
+  function push() {
+    echo "docker push \"$IMAGE_NAME:$1\""
+    if [[ "${IMAGE_NAME_ALTERNATIVE+x}" == "x" ]] && [[ -n "$IMAGE_NAME_ALTERNATIVE" ]]; then
+      echo "docker push \"$IMAGE_NAME_ALTERNATIVE:$1\""
+    fi
+  }
   function pushAs() {
     if [[ "$IMAGE_TAG" != "$1" ]]; then
       tag "$1"
@@ -281,16 +292,16 @@ function dcdCommandGen() {
         if [[ -n "$LATEST_VERSION" ]]; then
           reqVarNonEmpty CI_BUILD_NUMBER
           if [[ "$(isImageDownloaded "$CI_IMAGE_NAME:build-$CI_BUILD_NUMBER")" == "true" ]]; then
-            deployCommandGen -v "$LATEST_VERSION" -i "$CI_IMAGE_NAME" -t "build-$CI_BUILD_NUMBER" -s
+            deployCommandGen -v "$LATEST_VERSION" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}" -t "build-$CI_BUILD_NUMBER" -s
           fi
         fi
       fi
     fi
   else
     if [ "$(isValidSemanticVersion "$VERSION")" == "true" ]; then
-      deployCommandGen -v "$VERSION" -i "$CI_IMAGE_NAME" -s
+      deployCommandGen -v "$VERSION" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}" -s
     elif [ "$(isMinorBranch "$VERSION")" == "true" ]; then
-      deployCommandGen -T "$(toMinorDevVersion "$VERSION")" -i "$CI_IMAGE_NAME"
+      deployCommandGen -T "$(toMinorDevVersion "$VERSION")" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}"
     fi
   fi
 
