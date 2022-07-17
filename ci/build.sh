@@ -70,12 +70,28 @@ reqVarNonEmpty CI_BRANCH
 reqVarNonEmpty GIT_HASH
 reqVarNonEmpty CI_EVENT_TYPE
 
+write_info "Event type: $CI_EVENT_TYPE"
+
 if [[ "$CI_EVENT_TYPE" == "cron" ]]; then
+  write_info "Run cron job"
+  write_time_info
+
+  write_info "Check if the build was triggered by pushing to a branch."
   if [[ "$(isBranch)" == "true" ]]; then
+
+    write_info "Check if the name of the branch is a minor version like 2.1 and not 2.1.0"
     if [[ "$(isMinorBranch)" == "true" ]]; then
+      write_info "Start building..."
       source "$PROJECT_ROOT/ci/build.cron.sh"
+      write_info "The build was finished successfully."
+    else
+      write_info "The name of the branch is not a minor version: $CI_BRANCH"
     fi
+  else
+    write_info "The build was not triggerd by pushing to a branch"
   fi
 else
+  write_info "Start building triggered by pushing to a branch: $CI_BRANCH"
   source "$PROJECT_ROOT/ci/build.push.sh"
+  write_info "The build was finished successfully."
 fi

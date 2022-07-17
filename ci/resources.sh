@@ -5,12 +5,25 @@ PATTERN_MINOR_BRANCH='^\([0-9]\+\.[0-9]\+\)\(-dev\)\?$'
 PATTERN_STABLE_VERSION='[0-9]\+\.[0-9]\+\.[0-9]\+'
 PARENT_IMAGE="httpd:2.4"
 
+function get_current_time() {
+  date +'%Y-%m-%d %H:%M:%S %Z'
+}
+
+function get_current_time_utc() {
+  TZ=UTC get_current_time
+}
+
 function write_status() {
   echo "${1:-}" | awk -v "label=$2" '{ gsub(/^/, "-- ["label"] -- "); print $0 }'
 }
 
 function write_info() {
   write_status "$1" "info"
+}
+
+function write_time_info() {
+  write_info "Current local time: $(get_current_time)"
+  write_info "Current UTC time:   $(get_current_time_utc)"
 }
 
 function reqVar() {
