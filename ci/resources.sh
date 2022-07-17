@@ -5,23 +5,23 @@ PATTERN_MINOR_BRANCH='^\([0-9]\+\.[0-9]\+\)\(-dev\)\?$'
 PATTERN_STABLE_VERSION='[0-9]\+\.[0-9]\+\.[0-9]\+'
 PARENT_IMAGE="httpd:2.4"
 
-write_status() {
+function write_status() {
   echo "${1:-}" | awk -v "label=$2" '{ gsub(/^/, "-- ["label"] -- "); print $0 }'
 }
 
-write_info() {
+function write_info() {
   write_status "$1" "info"
 }
 
-reqVar() {
+function reqVar() {
   : "${!1?\$${1} is not set}"
 }
 
-reqVarNonEmpty() {
+function reqVarNonEmpty() {
   : "${!1:?\$${1} is Empty}"
 }
 
-toBool() {
+function toBool() {
   local BOOL
   BOOL=$(echo "$1" | tr '[:upper:]' '[:lower:]')
   case ${BOOL} in
@@ -31,16 +31,16 @@ toBool() {
   esac
 }
 
-isBranch() {
+function isBranch() {
   reqVarNonEmpty CI_BRANCH
   [[ "$CI_BRANCH" == "$CI_TAG" ]] && echo 'false' || echo 'true'
 }
 
-isTag() {
+function isTag() {
   [[ "$(isBranch)" == "false" ]] && echo 'true' || echo 'false'
 }
 
-isMinorBranch() {
+function isMinorBranch() {
   reqVarNonEmpty CI_BRANCH
 
   local RESULT
@@ -48,7 +48,7 @@ isMinorBranch() {
   [[ -z "$RESULT" ]] && echo 'true' || echo 'false'
 }
 
-getVersions() {
+function getVersions() {
   local BRANCH="${1:-}"
   if [[ -z "$BRANCH" ]]; then
     git tag --list 'v[0-9]*' --sort '-v:refname' | trimVersionFlag | grep -i '^'"$PATTERN_STABLE_VERSION"'\(-[^ ]\+\)\?$'
@@ -59,23 +59,23 @@ getVersions() {
   fi
 }
 
-getStableVersions() {
+function getStableVersions() {
   getVersions "${1:-}" | grep -i '^'"$PATTERN_STABLE_VERSION"'$'
 }
 
-trimVersionFlag() {
+function trimVersionFlag() {
   sed 's/^v\(.*\)/\1/g'
 }
 
-getLatestVersion() {
+function getLatestVersion() {
   getVersions "$1" | head -n1
 }
 
-getLatestStableVersion() {
+function getLatestStableVersion() {
   getStableVersions "${1:-}" | head -n 1
 }
 
-getLatestStableOrPreVersion() {
+function getLatestStableOrPreVersion() {
   local BRANCH="$1"
   reqVarNonEmpty BRANCH
   LATEST_VERSION="$(getLatestStableVersion "$BRANCH")"
@@ -85,52 +85,52 @@ getLatestStableOrPreVersion() {
   echo "$LATEST_VERSION"
 }
 
-getStableMajorVersions() {
+function getStableMajorVersions() {
   getStableVersions | cut -d "." -f1 | trimVersionFlag | uniq
 }
 
-getStableMinorVersionsOfMajor() {
+function getStableMinorVersionsOfMajor() {
   getStableVersions | grep '^'"$1"'.[0-9]\+\.[0-9]\+$' | cut -d "." -f1-2 | trimVersionFlag | uniq
 }
 
-getStablePatchVersionsOfMinor() {
+function getStablePatchVersionsOfMinor() {
   getStableVersions | grep '^'"$1"'.[0-9]\+$' | trimVersionFlag | uniq
 }
 
-getLatestStableVersionOfMajor() {
+function getLatestStableVersionOfMajor() {
   getStableVersions | grep '^'"$1"'.[0-9]\+\.[0-9]\+$' | trimVersionFlag | uniq | head -n1
 }
 
-getLatestStableVersionOfMinor() {
+function getLatestStableVersionOfMinor() {
   getStableVersions | grep '^'"$1"'.[0-9]\+$' | trimVersionFlag | uniq | head -n1
 }
 
 
-isValidSemanticVersion() {
+function isValidSemanticVersion() {
   local VERSION="$1"
   local RESULT
   RESULT="$(python -c "import semantic_version; print(semantic_version.validate('$VERSION'))")"
   [[ "$RESULT" == "True" ]] && echo "true" || echo "false"
 }
 
-isPreRelease() {
+function isPreRelease() {
   local VERSION="$1"
   local RESULT
   RESULT="$(python -c "import semantic_version; print(len(semantic_version.Version('$VERSION').prerelease) > 0)")"
   [[ "$RESULT" == "True" ]] && echo "true" || echo "false"
 }
 
-toMinorDevVersion() {
+function toMinorDevVersion() {
   local VERSION="$1"
   echo "$VERSION" | sed 's/'"$PATTERN_MINOR_BRANCH"'/\1-dev/g'
 }
 
-getImageLayers() {
+function getImageLayers() {
   local IMAGE="$1"
   docker image inspect -f '{{range $key, $value := .RootFS.Layers}}{{printf "%s\n" $value}}{{end}}' "$IMAGE" | head -n -1
 }
 
-isParentImageUpgraded() {
+function isParentImageUpgraded() {
   local IMAGE="$1"
   local PARENT_IMAGE="$2"
 
@@ -148,12 +148,12 @@ isParentImageUpgraded() {
   [[ -z "$RESULT" ]] && echo "true" || echo "false"
 }
 
-isImageDownloaded() {
+function isImageDownloaded() {
   local IMAGE="$1"
   docker image inspect "$IMAGE" &>/dev/null && echo 'true' || echo 'false'
 }
 
-deployCommandGen() (
+function deployCommandGen() (
   local GIT_HASH
   GIT_HASH="$(git rev-list -n 1 HEAD)"
   local SEMANTIC_VERSION="false"
@@ -185,9 +185,9 @@ deployCommandGen() (
   done
   shift $((OPTIND - 1))
 
-  tag() { echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""; }
-  push() { echo "docker push \"$IMAGE_NAME:$1\""; }
-  pushAs() {
+  function tag() { echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""; }
+  function push() { echo "docker push \"$IMAGE_NAME:$1\""; }
+  function pushAs() {
     if [[ "$IMAGE_TAG" != "$1" ]]; then
       tag "$1"
     fi
@@ -253,7 +253,7 @@ deployCommandGen() (
   done
 )
 
-dcdCommandGen() {
+function dcdCommandGen() {
   reqVarNonEmpty VERSION
   reqVarNonEmpty CI_IMAGE_NAME
   reqVarNonEmpty CI_EVENT_TYPE
