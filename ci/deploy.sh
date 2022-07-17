@@ -48,26 +48,38 @@ done
 shift $((OPTIND - 1))
 
 if [[ -n "$CI_TAG" ]]; then
+  write_info "CI_TAG is set. Set CI_BRANCH to the value of CI_TAG"
   CI_BRANCH="$CI_TAG" # for easier local test
 fi
+
+write_info "CI_BRANCH=$CI_BRANCH"
+write_info "CI_TAG=$CI_TAG"
 
 reqVarNonEmpty CI_IMAGE_NAME
 reqVarNonEmpty CI_BRANCH
 reqVarNonEmpty CI_EVENT_TYPE
 
+write_info "Remove leading version flag (v) from $CI_BRANCH"
 # remove first character if that is "v"
 # remember CI_BRANCH is CI_TAG if tag was set
 VERSION=$(echo "$CI_BRANCH" | trimVersionFlag)
 
+write_info "VERSION=$VERSION"
+
+write_info "Generate docker tag and push commands"
 DCD_COMMAND="$(dcdCommandGen)"
 
 # debugging missing tags
-echo "Images:"
-docker image ls
+write_info "Images:"
+write_info "$(docker image ls)"
 
-echo "DCD COMMAND:"
-echo "$DCD_COMMAND"
+write_info "DCD COMMAND:"
+write_info "$DCD_COMMAND"
 
+write_info "Check if there are generated tag and push commands to execute"
 if [[ -n "$DCD_COMMAND" ]]; then
+  write_info "Execute generated tag and push commands"
   eval "$DCD_COMMAND"
+else
+  write_info "There are no tag and push commands to execute"
 fi

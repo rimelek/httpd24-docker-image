@@ -49,7 +49,7 @@ isMinorBranch() {
 }
 
 getVersions() {
-  local BRANCH="$1"
+  local BRANCH="${1:-}"
   if [[ -z "$BRANCH" ]]; then
     git tag --list 'v[0-9]*' --sort '-v:refname' | trimVersionFlag | grep -i '^'"$PATTERN_STABLE_VERSION"'\(-[^ ]\+\)\?$'
   else
@@ -60,7 +60,7 @@ getVersions() {
 }
 
 getStableVersions() {
-  getVersions "$1" | grep -i '^'"$PATTERN_STABLE_VERSION"'$'
+  getVersions "${1:-}" | grep -i '^'"$PATTERN_STABLE_VERSION"'$'
 }
 
 trimVersionFlag() {
@@ -72,7 +72,7 @@ getLatestVersion() {
 }
 
 getLatestStableVersion() {
-  getStableVersions "$1" | head -n 1
+  getStableVersions "${1:-}" | head -n 1
 }
 
 getLatestStableOrPreVersion() {
@@ -84,6 +84,27 @@ getLatestStableOrPreVersion() {
   fi
   echo "$LATEST_VERSION"
 }
+
+getStableMajorVersions() {
+  getStableVersions | cut -d "." -f1 | trimVersionFlag | uniq
+}
+
+getStableMinorVersionsOfMajor() {
+  getStableVersions | grep '^'"$1"'.[0-9]\+\.[0-9]\+$' | cut -d "." -f1-2 | trimVersionFlag | uniq
+}
+
+getStablePatchVersionsOfMinor() {
+  getStableVersions | grep '^'"$1"'.[0-9]\+$' | trimVersionFlag | uniq
+}
+
+getLatestStableVersionOfMajor() {
+  getStableVersions | grep '^'"$1"'.[0-9]\+\.[0-9]\+$' | trimVersionFlag | uniq | head -n1
+}
+
+getLatestStableVersionOfMinor() {
+  getStableVersions | grep '^'"$1"'.[0-9]\+$' | trimVersionFlag | uniq | head -n1
+}
+
 
 isValidSemanticVersion() {
   local VERSION="$1"
@@ -167,7 +188,9 @@ deployCommandGen() (
   tag() { echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""; }
   push() { echo "docker push \"$IMAGE_NAME:$1\""; }
   pushAs() {
-    [[ "$IMAGE_TAG" != "$1" ]] && tag "$1"
+    if [[ "$IMAGE_TAG" != "$1" ]]; then
+      tag "$1"
+    fi
     push "$1"
   }
 
@@ -176,23 +199,52 @@ deployCommandGen() (
 
   CURRENT_VALID="$(isValidSemanticVersion "$CURRENT_VERSION")"
   LATEST_VALID="$(isValidSemanticVersion "$LATEST_VERSION")"
-  [[ -z "$IMAGE_NAME" ]] && echo >&2 "IMAGE_NAME is empty" && exit 1
-
+  if [[ -z "$IMAGE_NAME" ]]; then
+    echo >&2 "IMAGE_NAME is empty"
+    exit 1
+  fi
   if [[ -n "$CURRENT_VERSION" ]]; then
-    [[ "$CURRENT_VALID" != "true" ]] && [[ -n "$CURRENT_VERSION" ]] && echo >&2 "Invalid CURRENT_VERSION: $CURRENT_VERSION" && return 1
-    [[ "$LATEST_VALID" != "true" ]] && [[ -n "$LATEST_VERSION" ]] && echo >&2 "Invalid LATEST_VERSION: $LATEST_VERSION" && return 1
+    if [[ "$CURRENT_VALID" != "true" ]] && [[ -n "$CURRENT_VERSION" ]]; then
+      echo >&2 "Invalid CURRENT_VERSION: $CURRENT_VERSION"
+      return 1
+    fi
+    if [[ "$LATEST_VALID" != "true" ]] && [[ -n "$LATEST_VERSION" ]]; then
+      echo >&2 "Invalid LATEST_VERSION: $LATEST_VERSION"
+      return 1
+    fi
 
     pushAs "$CURRENT_VERSION"
 
     local IS_PRE_RELEASE
     IS_PRE_RELEASE="$(isPreRelease "$CURRENT_VERSION")"
-    if [[ "$SEMANTIC_VERSION" == "true" ]] || [[ "$IS_PRE_RELEASE" == "true" ]]; then
-      [[ -z "$LATEST_MINOR" ]] && LATEST_MINOR="$(getLatestStableVersion "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)")"
-      [[ -z "$LATEST_MAJOR" ]] && LATEST_MAJOR="$(git tag -l "v$(echo "$CURRENT_VERSION" | cut -d . -f1).*")"
-      [[ -z "$LATEST_VERSION" ]] && LATEST_VERSION="$(getLatestStableVersion)"
-      [[ "$LATEST_MINOR" == "$CURRENT_VERSION" ]] && pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)"
-      [[ "$LATEST_MAJOR" == "$CURRENT_VERSION" ]] && pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1)"
-      [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]] && [[ -n "$LATEST_VERSION" ]] && pushAs latest
+    if [[ "$SEMANTIC_VERSION" == "true" ]]; then
+      if [[ -z "$LATEST_MINOR" ]]; then
+        # LATEST_MINOR="$(getLatestStableVersion "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)")"
+        LATEST_MINOR="$(getLatestStableVersionOfMinor "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)")"
+      fi
+
+      if [[ -z "$LATEST_MAJOR" ]]; then
+        # LATEST_MAJOR="$(git tag -l "v$(echo "$CURRENT_VERSION" | cut -d . -f1).*")"
+        LATEST_MAJOR="$(getLatestStableVersionOfMajor "$(echo "$CURRENT_VERSION" | cut -d . -f1)")"
+      fi
+
+      if [[ -z "$LATEST_VERSION" ]]; then
+        LATEST_VERSION="$(getLatestStableVersion)"
+      fi
+
+      # push commands
+
+      if [[ "$LATEST_MINOR" == "$CURRENT_VERSION" ]]; then
+        pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)"
+      fi
+
+      if [[ "$LATEST_MAJOR" == "$CURRENT_VERSION" ]]; then
+        pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1)"
+      fi
+
+      if [[ -n "$LATEST_VERSION" ]] && [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]]; then
+        pushAs latest
+      fi
     fi
   fi
 
