@@ -200,7 +200,10 @@ function deployCommandGen() (
   shift $((OPTIND - 1))
 
   function tag() {
-    echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""
+    if [[ "$IMAGE_TAG" != "$1" ]]; then
+      echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""
+    fi
+
     if [[ "${IMAGE_NAME_ALTERNATIVE+x}" == "x" ]] && [[ -n "$IMAGE_NAME_ALTERNATIVE" ]]; then
       echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME_ALTERNATIVE:$1\""
     fi
@@ -212,9 +215,7 @@ function deployCommandGen() (
     fi
   }
   function pushAs() {
-    if [[ "$IMAGE_TAG" != "$1" ]]; then
-      tag "$1"
-    fi
+    tag "$1"
     push "$1"
   }
 
