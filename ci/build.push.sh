@@ -17,7 +17,6 @@ if [ "$(isBranch)" == "true" ]; then
   write_info "- $image"
   write_info "- $CI_IMAGE_NAME:build-$CI_BUILD_NUMBER"
 
-  docker_builder_create_and_use
   docker_build . \
     --cache-from "$CI_PARENT_IMAGE" \
     --cache-from "$CI_IMAGE_NAME:$VERSION_CACHE" \

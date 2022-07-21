@@ -331,6 +331,7 @@ function docker_build() {
   fi
   command+=( --pull --push --progress plain "$@")
 
+  docker_builder_create_and_use multiarch
   "${command[@]}"
 }
 
