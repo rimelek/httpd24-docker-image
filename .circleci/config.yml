@@ -30,6 +30,10 @@ jobs:
           command: docker image ls
 
       - run:
+          name: Test
+          command: ./.circleci/step-test-docker-image.sh
+
+      - run:
           name: Deploy Docker image
           command: ./.circleci/step-deploy-docker-image.sh
 

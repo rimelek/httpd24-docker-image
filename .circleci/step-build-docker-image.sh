@@ -6,5 +6,4 @@
   -b "$CIRCLE_BRANCH" \
   -e "$CI_EVENT_TYPE" \
   -B "circleci-$CIRCLE_BUILD_NUM" \
-  -T "$HTTPD_WAIT_TIMEOUT" \
   -R "$CI_REPOSITORY_URL"

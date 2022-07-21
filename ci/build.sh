@@ -13,23 +13,22 @@ export CI_DRY_RUN=""
 export CI_BRANCH=""
 export CI_TAG=""
 export CI_IMAGE_NAME=""
-export CI_SKIP_TEST=""
-export CI_DOCKER_START_TIMEOUT="180"
 export CI_EVENT_TYPE=""
 export CI_REPOSITORY_ALIAS="origin"
 export CI_REPOSITORY_URL=""
 export CI_BUILD_NUMBER="$GIT_HASH"
+export CI_PLATFORMS="linux/amd64,linux/arm/v8"
+export CI_PARENT_IMAGE="httpd:2.4"
 
-while getopts ":t:b:i:T:e:r:R:B:dhs" opt; do
+while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
   case $opt in
   t) CI_TAG="$OPTARG" ;;
-  T) CI_DOCKER_START_TIMEOUT="$OPTARG" ;;
   b) CI_BRANCH="$OPTARG" ;;
   i) CI_IMAGE_NAME="$OPTARG" ;;
-  s) CI_SKIP_TEST="y" ;;
   r) CI_REPOSITORY_ALIAS="$OPTARG" ;;
   R) CI_REPOSITORY_URL="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
+  p) CI_PLATFORMS="$OPTARG" ;;
   e)
     case "$OPTARG" in
     push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
@@ -45,11 +44,11 @@ while getopts ":t:b:i:T:e:r:R:B:dhs" opt; do
     echo -e "\t-t <string>\tGit commit tag if the build was triggered by tag. Do not use it anyway!"
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"
     echo -e "\t-i <string>\tDocker image name without version tag."
-    echo -e "\t-s\t\tSkip running tests"
     echo -e "\t-e <string>\tEvent type. Valid types: "
     echo -e "\t-r <string>\tRemote repository alias. Default: origin"
     echo -e "\t-R <string>\tRemote repository URL. Default: the url of the repository alias"
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
+    echo -e "\t-p <string>\t List of platforms like: -p linux/amd64,linux/arm/v8"
     echo -e "\t-h\t\tShows this help message"
     exit 0
     ;;

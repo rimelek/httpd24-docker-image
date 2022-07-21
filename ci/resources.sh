@@ -199,24 +199,16 @@ function deployCommandGen() (
   done
   shift $((OPTIND - 1))
 
+  local tag_args=()
+
   function tag() {
     if [[ "$IMAGE_TAG" != "$1" ]]; then
-      echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME:$1\""
+      tag_args+=("$IMAGE_NAME:$1")
     fi
 
     if [[ "${IMAGE_NAME_ALTERNATIVE+x}" == "x" ]] && [[ -n "$IMAGE_NAME_ALTERNATIVE" ]]; then
-      echo "docker tag \"$IMAGE_NAME:$IMAGE_TAG\" \"$IMAGE_NAME_ALTERNATIVE:$1\""
+      tag_args+=("$IMAGE_NAME_ALTERNATIVE:$1")
     fi
-  }
-  function push() {
-    echo "docker push \"$IMAGE_NAME:$1\""
-    if [[ "${IMAGE_NAME_ALTERNATIVE+x}" == "x" ]] && [[ -n "$IMAGE_NAME_ALTERNATIVE" ]]; then
-      echo "docker push \"$IMAGE_NAME_ALTERNATIVE:$1\""
-    fi
-  }
-  function pushAs() {
-    tag "$1"
-    push "$1"
   }
 
   local CURRENT_VALID
@@ -238,7 +230,7 @@ function deployCommandGen() (
       return 1
     fi
 
-    pushAs "$CURRENT_VERSION"
+    tag "$CURRENT_VERSION"
 
     if [[ "$SEMANTIC_VERSION" == "true" ]]; then
       if [[ -z "$LATEST_MINOR" ]]; then
@@ -258,24 +250,26 @@ function deployCommandGen() (
       # push commands
 
       if [[ "$LATEST_MINOR" == "$CURRENT_VERSION" ]]; then
-        pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)"
+        tag "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)"
       fi
 
       if [[ "$LATEST_MAJOR" == "$CURRENT_VERSION" ]]; then
-        pushAs "$(echo "$CURRENT_VERSION" | cut -d . -f1)"
+        tag "$(echo "$CURRENT_VERSION" | cut -d . -f1)"
       fi
 
       if [[ -n "$LATEST_VERSION" ]] && [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]]; then
-        pushAs latest
+        tag latest
       fi
     fi
   fi
 
-  pushAs "$GIT_HASH"
+  tag "$GIT_HASH"
 
   for i in $CUSTOM_TAGS; do
-    pushAs "$i"
+    tag "$i"
   done
+
+  docker_tag "$IMAGE_NAME:$IMAGE_TAG" "${tag_args[@]}"
 )
 
 function dcdCommandGen() {
@@ -306,4 +300,72 @@ function dcdCommandGen() {
     fi
   fi
 
+}
+
+function docker_builder_exists() {
+  local name="$1"
+
+  if docker buildx inspect "$name" &>/dev/null; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
+function docker_builder_create() {
+  docker buildx create --name "$1"
+}
+
+function docker_builder_create_and_use() {
+  local name="$1"
+  if [[ "$(docker_builder_exists "$name")" != "true" ]]; then
+    docker_builder_create "$name"
+  fi
+  docker buildx use "$name"
+}
+
+function docker_build() {
+  command=(docker buildx build)
+  if [[ "${CI_PLATFORMS+x}" == "x" ]] && [[ -n "$CI_PLATFORMS" ]]; then
+    command+=(--platform "$CI_PLATFORMS")
+  fi
+  command+=( --pull --push --progress plain "$@")
+
+  "${command[@]}"
+}
+
+function docker_tag() {
+  local tag_src="$1"
+  shift
+  local tag_dsts=("$@")
+  command=(docker buildx build)
+  if [[ "${CI_PLATFORMS+x}" == "x" ]] && [[ -n "$CI_PLATFORMS" ]]; then
+    command+=(--platform "$CI_PLATFORMS")
+  fi
+  command+=(
+    .
+    --pull
+    --push
+    --progress plain
+    --cache-from "$tag_src"
+  )
+
+  local i
+  for i in "${tag_dsts[@]}"; do
+    command+=(--tag "$i")
+  done
+
+  write_info "Deploy command: "
+  write_info "${command[@]}"
+
+  "${command[@]}"
+}
+
+function pip_install_ci_requirements() {
+  for i in "./ci/requirements.txt" "./requirements.txt"; do
+    if [[ -f "$i" ]]; then
+      pip install -r "$i"
+      break
+    fi
+  done
 }

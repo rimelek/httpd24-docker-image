@@ -62,6 +62,13 @@ reqVarNonEmpty CI_IMAGE_NAME
 reqVarNonEmpty CI_BRANCH
 reqVarNonEmpty CI_EVENT_TYPE
 
+if [[ "$CI_EVENT_TYPE" == "cron" ]]; then
+  BUILD_DIR="$PROJECT_ROOT/var/.build"
+  write_info "Change directory to $BUILD_DIR"
+  cd "$BUILD_DIR"
+  GIT_HASH="$(git rev-list -n 1 HEAD)"
+fi
+
 write_info "Remove leading version flag (v) from $CI_BRANCH"
 # remove first character if that is "v"
 # remember CI_BRANCH is CI_TAG if tag was set
@@ -69,20 +76,8 @@ VERSION=$(echo "$CI_BRANCH" | trimVersionFlag)
 
 write_info "VERSION=$VERSION"
 
-write_info "Generate docker tag and push commands"
-DCD_COMMAND="$(dcdCommandGen)"
+dcdCommandGen
 
 # debugging missing tags
 write_info "Images:"
 write_info "$(docker image ls)"
-
-write_info "DCD COMMAND:"
-write_info "$DCD_COMMAND"
-
-write_info "Check if there are generated tag and push commands to execute"
-if [[ -n "$DCD_COMMAND" ]]; then
-  write_info "Execute generated tag and push commands"
-  eval "$DCD_COMMAND"
-else
-  write_info "There are no tag and push commands to execute"
-fi
