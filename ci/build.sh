@@ -17,7 +17,6 @@ export CI_EVENT_TYPE=""
 export CI_REPOSITORY_ALIAS="origin"
 export CI_REPOSITORY_URL=""
 export CI_BUILD_NUMBER="$GIT_HASH"
-export CI_PLATFORMS="linux/amd64,linux/arm/v8"
 export CI_PARENT_IMAGE="httpd:2.4"
 
 while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
@@ -39,7 +38,7 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
     esac
     ;;
   h)
-    echo "Usage: $0 [-t <string>] [-b <string>] [-i <string>] [-e <string>] [-r <string>] [-d] [-s] [-h]"
+    echo "Usage: $0 [-t <string>] [-b <string>] [-i <string>] [-e <string>] [-r <string>] [-R <string>] [-B <string>] [-p <string>] [-d] [-s] [-h]"
     echo "Options:"
     echo -e "\t-t <string>\tGit commit tag if the build was triggered by tag. Do not use it anyway!"
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"

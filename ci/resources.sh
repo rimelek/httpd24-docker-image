@@ -4,6 +4,7 @@ GIT_HASH="$(git rev-list -n 1 HEAD)"
 PATTERN_MINOR_BRANCH='^\([0-9]\+\.[0-9]\+\)\(-dev\)\?$'
 PATTERN_STABLE_VERSION='[0-9]\+\.[0-9]\+\.[0-9]\+'
 PARENT_IMAGE="httpd:2.4"
+export CI_PLATFORMS="linux/amd64,linux/arm/v8"
 
 function get_current_time() {
   date +'%Y-%m-%d %H:%M:%S %Z'
@@ -357,7 +358,7 @@ function docker_tag() {
   done
 
   write_info "Deploy command: "
-  write_info "${command[@]}"
+  write_info "${command[*]}"
 
   "${command[@]}"
 }

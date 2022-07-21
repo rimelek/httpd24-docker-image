@@ -21,6 +21,7 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
   i) CI_IMAGE_NAME="$OPTARG" ;;
   I) CI_IMAGE_NAME_ALTERNATIVE="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
+  p) CI_PLATFORMS="$OPTARG" ;;
   e)
     case "$OPTARG" in
     push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
@@ -39,6 +40,7 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
     echo -e "\t-I <string>\tAlternative Docker image name without version tag. Can be used to push to a second repository."
     echo -e "\t-e <string>\tEvent type. Valid types: "
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
+    echo -e "\t-p <string>\t List of platforms like: -p linux/amd64,linux/arm/v8"
     echo -e "\t-h\t\tShows this help message"
     exit 0
     ;;
