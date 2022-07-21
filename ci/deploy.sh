@@ -76,6 +76,7 @@ VERSION=$(echo "$CI_BRANCH" | trimVersionFlag)
 
 write_info "VERSION=$VERSION"
 
+docker_builder_create_and_use
 dcdCommandGen
 
 # debugging missing tags
