@@ -13,22 +13,22 @@ VERSION_CACHE="$LATEST_VERSION"
 write_info "Prepare build directory"
 BUILD_DIR="$PROJECT_ROOT/var/.build"
 if [[ -d "$BUILD_DIR" ]]; then
-  rm -rf "$BUILD_DIR"
+  execute_command rm -rf "$BUILD_DIR"
 fi
 
 write_info "Check if the the repository URL is not defined or empty"
 if [[ "${CI_REPOSITORY_URL-x}" == "x" ]] || [[ -z "$CI_REPOSITORY_URL" ]]; then
   write_info "Repository URL is not defined."
   write_info "Get repository URL from the repository: $CI_REPOSITORY_ALIAS"
-  CI_REPOSITORY_URL="$(git remote get-url "$CI_REPOSITORY_ALIAS")"
+  CI_REPOSITORY_URL="$(execute_command git remote get-url "$CI_REPOSITORY_ALIAS")"
 fi
 
 write_info "Cloning from $CI_REPOSITORY_URL to $BUILD_DIR"
-git clone --branch "v$LATEST_VERSION" "$CI_REPOSITORY_URL" "$BUILD_DIR"
+execute_command git clone --branch "v$LATEST_VERSION" "$CI_REPOSITORY_URL" "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 # update git commit hash
-GIT_HASH="$(git rev-list -n 1 HEAD)"
+GIT_HASH="$(execute_command git rev-list -n 1 HEAD)"
 
 image="$CI_IMAGE_NAME:$GIT_HASH"
 

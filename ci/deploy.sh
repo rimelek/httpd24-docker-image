@@ -7,12 +7,13 @@ cd "$PROJECT_ROOT"
 
 source "$PROJECT_ROOT/ci/resources.sh"
 
-CI_BRANCH=""
-CI_TAG=""
-CI_IMAGE_NAME=""
-CI_IMAGE_NAME_ALTERNATIVE=""
-CI_EVENT_TYPE=""
-CI_BUILD_NUMBER="${GIT_HASH}"
+export CI_BRANCH=""
+export CI_TAG=""
+export CI_IMAGE_NAME=""
+export CI_IMAGE_NAME_ALTERNATIVE=""
+export CI_EVENT_TYPE=""
+export CI_BUILD_NUMBER="${GIT_HASH}"
+export CI_DEBUG=""
 
 while getopts ":t:b:i:I:e:B:dh" opt; do
   case $opt in
@@ -22,6 +23,7 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
   I) CI_IMAGE_NAME_ALTERNATIVE="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
   p) CI_PLATFORMS="$OPTARG" ;;
+  d) CI_DEBUG="true" ;;
   e)
     case "$OPTARG" in
     push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
@@ -32,7 +34,7 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
     esac
     ;;
   h)
-    echo "Usage: $0 [-t <string>] [-b <string>] [-i <string>] [-h]"
+    echo "Usage: $0 [options]"
     echo "Options:"
     echo -e "\t-t <string>\tGit commit tag if the build was triggered by tag. Do not use it anyway!"
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"
@@ -40,8 +42,9 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
     echo -e "\t-I <string>\tAlternative Docker image name without version tag. Can be used to push to a second repository."
     echo -e "\t-e <string>\tEvent type. Valid types: "
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
-    echo -e "\t-p <string>\t List of platforms like: -p linux/amd64,linux/arm/v8"
-    echo -e "\t-h\t\tShows this help message"
+    echo -e "\t-p <string>\tList of platforms like: -p linux/amd64,linux/arm/v8"
+    echo -e "\t-d         \tTurn on debug outputs"
+    echo -e "\t-h         \tShows this help message"
     exit 0
     ;;
   *)

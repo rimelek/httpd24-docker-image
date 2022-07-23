@@ -329,7 +329,7 @@ function docker_builder_exists() {
 }
 
 function docker_builder_create() {
-  docker buildx create --name "$1"
+  execute_command docker buildx create --name "$1"
 }
 
 function docker_builder_create_and_use() {
@@ -337,7 +337,7 @@ function docker_builder_create_and_use() {
   if [[ "$(docker_builder_exists "$name")" != "true" ]]; then
     docker_builder_create "$name"
   fi
-  docker buildx use "$name"
+  execute_command docker buildx use "$name"
 }
 
 function docker_build() {
@@ -349,7 +349,7 @@ function docker_build() {
   command+=("$@")
 
   docker_builder_create_and_use multiarch
-  "${command[@]}"
+  execute_command "${command[@]}"
 }
 
 function docker_tag() {
@@ -363,16 +363,13 @@ function docker_tag() {
     command+=(--tag "$i")
   done
 
-  write_info "Deploy command: "
-  write_info "${command[*]}"
-
-  "${command[@]}"
+  execute_command "${command[@]}"
 }
 
 function pip_install_ci_requirements() {
   for i in "./ci/requirements.txt" "./requirements.txt"; do
     if [[ -f "$i" ]]; then
-      pip install -r "$i"
+      execute_command pip install -r "$i"
       break
     fi
   done

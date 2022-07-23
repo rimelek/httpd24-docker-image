@@ -27,7 +27,7 @@ while getopts ":i:e:T:hs" opt; do
     esac
     ;;
   h)
-    echo "Usage: $0 [-i <string>] [-s] [-h]"
+    echo "Usage: $0 [options]"
     echo "Options:"
     echo -e "\t-i <string>\tDocker image name without version tag."
     echo -e "\t-s\t\tSkip running tests"

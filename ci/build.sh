@@ -18,6 +18,7 @@ export CI_REPOSITORY_ALIAS="origin"
 export CI_REPOSITORY_URL=""
 export CI_BUILD_NUMBER="$GIT_HASH"
 export CI_PARENT_IMAGE="httpd:2.4"
+export CI_DEBUG=""
 
 while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
   case $opt in
@@ -28,6 +29,7 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
   R) CI_REPOSITORY_URL="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
   p) CI_PLATFORMS="$OPTARG" ;;
+  d) CI_DEBUG="true" ;;
   e)
     case "$OPTARG" in
     push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
@@ -38,7 +40,7 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
     esac
     ;;
   h)
-    echo "Usage: $0 [-t <string>] [-b <string>] [-i <string>] [-e <string>] [-r <string>] [-R <string>] [-B <string>] [-p <string>] [-d] [-s] [-h]"
+    echo "Usage: $0 [options]"
     echo "Options:"
     echo -e "\t-t <string>\tGit commit tag if the build was triggered by tag. Do not use it anyway!"
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"
@@ -47,8 +49,9 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
     echo -e "\t-r <string>\tRemote repository alias. Default: origin"
     echo -e "\t-R <string>\tRemote repository URL. Default: the url of the repository alias"
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
-    echo -e "\t-p <string>\t List of platforms like: -p linux/amd64,linux/arm/v8"
-    echo -e "\t-h\t\tShows this help message"
+    echo -e "\t-p <string>\tList of platforms like: -p linux/amd64,linux/arm/v8"
+    echo -e "\t-d         \tTurn on debug outputs"
+    echo -e "\t-h         \tShows this help message"
     exit 0
     ;;
   *)
