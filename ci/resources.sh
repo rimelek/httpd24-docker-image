@@ -394,7 +394,7 @@ function docker_tag() {
   shift
   local tag_dsts=("$@")
   local command
-  command=(docker_build . --cache-from "$tag_src")
+  command=(docker_build --cache-from "$tag_src")
   local i
   for i in "${tag_dsts[@]}"; do
     command+=(--tag "$i")
