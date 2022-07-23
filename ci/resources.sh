@@ -371,11 +371,19 @@ function docker_builder_create_and_use() {
 
 function docker_build() {
   local command
-  command=(docker buildx build --pull --push --progress plain)
+  local build_context
+  local file
+  build_context="$(pwd)"
+  file="$build_context/Dockerfile"
+
+  command=(docker buildx build "$build_context" --file "$file" --pull --push --progress plain)
   if [[ "${CI_PLATFORMS+x}" == "x" ]] && [[ -n "$CI_PLATFORMS" ]]; then
     command+=(--platform "$CI_PLATFORMS")
   fi
   command+=("$@")
+
+  write_info "Build context: $build_context"
+  write_info "Docker file is: $file"
 
   docker_builder_create_and_use multiarch
   execute_command "${command[@]}"
