@@ -15,11 +15,30 @@ function get_current_time_utc() {
 }
 
 function write_status() {
-  echo "${1:-}" | awk -v "label=$2" '{ gsub(/^/, "-- ["label"] -- "); print $0 }'
+  echo "${1:-}" | awk -v "label=${2:-info}" '{ gsub(/^/, "-- ["label"] -- "); print $0 }'
 }
 
 function write_info() {
   write_status "$1" "info"
+}
+
+function write_debug() {
+  >&2 write_status "$1" "debug"
+}
+
+function write_debug_command() {
+  write_debug ""
+  for i in "$@"; do
+    write_debug "command part: $i"
+  done
+  write_debug ""
+}
+
+function execute_command() {
+  if [[ "${CI_DEBUG+x}" == "x" ]] && [[ "$CI_DEBUG" != "" ]]; then
+    write_debug_command "$@"
+  fi
+  "$@"
 }
 
 function write_time_info() {
