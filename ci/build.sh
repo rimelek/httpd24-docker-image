@@ -2,11 +2,8 @@
 
 set -eu -o pipefail
 
-export PROJECT_ROOT="${0%/*}/.."
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_ROOT"
-
-export GIT_HASH=""
-
 source "$PROJECT_ROOT/ci/resources.sh"
 
 export CI_DRY_RUN=""
