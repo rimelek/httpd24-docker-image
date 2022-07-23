@@ -6,12 +6,16 @@ parameters:
   CI_REPOSITORY_URL:
     type: string
     default: ""
+  CI_DEBUG:
+    type: string
+    default: ""
 
 jobs:
   build:
     environment:
       CI_EVENT_TYPE: "<< pipeline.parameters.CI_EVENT_TYPE >>"
       CI_REPOSITORY_URL: "<< pipeline.parameters.CI_REPOSITORY_URL >>"
+      CI_DEBUG: "<< pipeline.parameters.CI_DEBUG >>"
       HTTPD_IMAGE_NAME: rimelek/httpd24
       HTTPD_IMAGE_NAME_ALTERNATIVE: "itsziget/httpd24"
     resource_class: medium
