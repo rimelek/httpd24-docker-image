@@ -22,6 +22,16 @@ function write_info() {
   write_status "$1" "info"
 }
 
+function write_error() {
+  >&2 write_status "$1" "error"
+}
+
+function write_error_and_return() {
+  write_error "$1"
+  write_error "Returning with error code: $2"
+  return "$2"
+}
+
 function write_debug() {
   >&2 write_status "$1" "debug"
 }
@@ -294,24 +304,45 @@ function dcdCommandGen() {
   reqVarNonEmpty CI_EVENT_TYPE
   reqVarNonEmpty PROJECT_ROOT
 
+  write_info "Check event type: $CI_EVENT_TYPE"
   if [[ "$CI_EVENT_TYPE" == "cron" ]]; then
+    write_info "This deployment process was triggered by a cronjob"
+    write_info "Change directory to $PROJECT_ROOT"
     cd "$PROJECT_ROOT"
-    if [[ "$(isBranch)" ]]; then
-      reqVarNonEmpty CI_BRANCH
-      if [[ "$(isMinorBranch)" == "true" ]]; then
-        LATEST_VERSION="$(getLatestStableOrPreVersion "$CI_BRANCH")"
-        if [[ -n "$LATEST_VERSION" ]]; then
-          reqVarNonEmpty CI_BUILD_NUMBER
-          if [[ "$(isImageDownloaded "$CI_IMAGE_NAME:build-$CI_BUILD_NUMBER")" == "true" ]]; then
-            deployCommandGen -v "$LATEST_VERSION" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}" -t "build-$CI_BUILD_NUMBER" -s
-          fi
-        fi
-      fi
+
+    # error checking
+    if [[ "$(isBranch)" == "false" ]]; then
+      write_error_and_return "Invalid parameters. CI_BRANCH is the same as CI_TAG look like the same. Running cron jobs directly on a version is not supported." 2
     fi
+
+    # error checking
+    reqVarNonEmpty CI_BRANCH
+
+    write_info "Branch: $CI_BRANCH"
+    # error checking
+    if [[ "$(isMinorBranch)" == "false" ]]; then
+      write_error_and_return "Unsupported branch. The branch does not look like a version number with major and minor components." 2
+    fi
+
+    write_info "The name of the branch looks like a semantic version number with the major and the minor component."
+    LATEST_VERSION="$(getLatestStableOrPreVersion "$CI_BRANCH")"
+    write_info "The latest semantic version in this branch is: $LATEST_VERSION"
+
+    # error checking
+    if [[ -z "$LATEST_VERSION" ]]; then
+      write_error_and_return "There is no semantic version tag in this branch." 1
+    fi
+
+    write_info "This version number is not an empty string"
+    reqVarNonEmpty CI_BUILD_NUMBER
+    deployCommandGen -v "$LATEST_VERSION" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}" -t "build-$CI_BUILD_NUMBER" -s
   else
+    write_info "This deployment process was triggered by pushing to a branch or tagging a commit"
     if [ "$(isValidSemanticVersion "$VERSION")" == "true" ]; then
+      write_info "$VERSION is a valid semantic version with major, minor and patch components."
       deployCommandGen -v "$VERSION" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}" -s
     elif [ "$(isMinorBranch "$VERSION")" == "true" ]; then
+      write_info "$VERSION looks like a version number with major and minor components."
       deployCommandGen -T "$(toMinorDevVersion "$VERSION")" -i "$CI_IMAGE_NAME" -I "${CI_IMAGE_NAME_ALTERNATIVE:-}"
     fi
   fi
