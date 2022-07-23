@@ -341,11 +341,12 @@ function docker_builder_create_and_use() {
 }
 
 function docker_build() {
-  command=(docker buildx build)
+  local command
+  command=(docker buildx build --pull --push --progress plain)
   if [[ "${CI_PLATFORMS+x}" == "x" ]] && [[ -n "$CI_PLATFORMS" ]]; then
     command+=(--platform "$CI_PLATFORMS")
   fi
-  command+=( --pull --push --progress plain "$@")
+  command+=("$@")
 
   docker_builder_create_and_use multiarch
   "${command[@]}"
@@ -355,18 +356,8 @@ function docker_tag() {
   local tag_src="$1"
   shift
   local tag_dsts=("$@")
-  command=(docker buildx build)
-  if [[ "${CI_PLATFORMS+x}" == "x" ]] && [[ -n "$CI_PLATFORMS" ]]; then
-    command+=(--platform "$CI_PLATFORMS")
-  fi
-  command+=(
-    .
-    --pull
-    --push
-    --progress plain
-    --cache-from "$tag_src"
-  )
-
+  local command
+  command=(docker_build . --cache-from "$tag_src")
   local i
   for i in "${tag_dsts[@]}"; do
     command+=(--tag "$i")
