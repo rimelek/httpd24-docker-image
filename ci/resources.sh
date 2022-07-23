@@ -306,9 +306,7 @@ function dcdCommandGen() {
 
   write_info "Check event type: $CI_EVENT_TYPE"
   if [[ "$CI_EVENT_TYPE" == "cron" ]]; then
-    write_info "This deployment process was triggered by a cronjob"
-    write_info "Change directory to $PROJECT_ROOT"
-    cd "$PROJECT_ROOT"
+    write_info "This deployment process was triggered by a cron job"
 
     # error checking
     if [[ "$(isBranch)" == "false" ]]; then
