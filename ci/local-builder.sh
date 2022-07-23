@@ -15,7 +15,7 @@ compose=(docker-compose -f local-builder.yml)
 
   echo "Workdir: $workdir"
 
-  "${compose[@]}" build --build-arg "WORKDIR=$workdir"
+  "${compose[@]}" build --progress plain --build-arg "WORKDIR=$workdir"
 
   echo "COPY_MODE: $COPY_MODE"
 
