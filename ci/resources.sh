@@ -235,20 +235,16 @@ function deployCommandGen() (
 
     if [[ "$SEMANTIC_VERSION" == "true" ]]; then
       if [[ -z "$LATEST_MINOR" ]]; then
-        # LATEST_MINOR="$(getLatestStableVersion "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)")"
         LATEST_MINOR="$(getLatestStableVersionOfMinor "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)")"
       fi
 
       if [[ -z "$LATEST_MAJOR" ]]; then
-        # LATEST_MAJOR="$(git tag -l "v$(echo "$CURRENT_VERSION" | cut -d . -f1).*")"
         LATEST_MAJOR="$(getLatestStableVersionOfMajor "$(echo "$CURRENT_VERSION" | cut -d . -f1)")"
       fi
 
       if [[ -z "$LATEST_VERSION" ]]; then
         LATEST_VERSION="$(getLatestStableVersion)"
       fi
-
-      # push commands
 
       if [[ "$LATEST_MINOR" == "$CURRENT_VERSION" ]]; then
         tag "$(echo "$CURRENT_VERSION" | cut -d . -f1-2)"
