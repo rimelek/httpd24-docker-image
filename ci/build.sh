@@ -25,7 +25,6 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
   r) CI_REPOSITORY_ALIAS="$OPTARG" ;;
   R) CI_REPOSITORY_URL="$OPTARG" ;;
   B) CI_BUILD_NUMBER="$OPTARG" ;;
-  p) CI_PLATFORMS="$OPTARG" ;;
   d) CI_DEBUG="true" ;;
   e)
     case "$OPTARG" in
@@ -46,7 +45,6 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
     echo -e "\t-r <string>\tRemote repository alias. Default: origin"
     echo -e "\t-R <string>\tRemote repository URL. Default: the url of the repository alias"
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
-    echo -e "\t-p <string>\tList of platforms like: -p linux/amd64,linux/arm/v8"
     echo -e "\t-d         \tTurn on debug outputs"
     echo -e "\t-h         \tShows this help message"
     exit 0
