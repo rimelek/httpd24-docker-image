@@ -18,7 +18,7 @@ while getopts ":i:e:T:hs" opt; do
   T) CI_DOCKER_START_TIMEOUT="$OPTARG" ;;
   e)
     case "$OPTARG" in
-    push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
+    push | cron) CI_EVENT_TYPE="$OPTARG" ;;
     *)
       echo >&2 "Invalid event type: $OPTARG"
       exit 1
@@ -29,8 +29,10 @@ while getopts ":i:e:T:hs" opt; do
     echo "Usage: $0 [options]"
     echo "Options:"
     echo -e "\t-i <string>\tDocker image name without version tag."
-    echo -e "\t-s\t\tSkip running tests"
-    echo -e "\t-h\t\tShows this help message"
+    echo -e "\t-s         \tSkip running tests"
+    echo -e "\t-T         \tStart timeout before considering the test failed."
+    echo -e "\t-e <string>\tEvent type. Valid types: api, cron"
+    echo -e "\t-h         \tShows this help message"
     exit 0
     ;;
   *)

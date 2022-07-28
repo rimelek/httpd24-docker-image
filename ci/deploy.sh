@@ -24,7 +24,7 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
   d) CI_DEBUG="true" ;;
   e)
     case "$OPTARG" in
-    push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
+    push | cron) CI_EVENT_TYPE="$OPTARG" ;;
     *)
       echo >&2 "Invalid event type: $OPTARG"
       exit 1
@@ -38,7 +38,7 @@ while getopts ":t:b:i:I:e:B:dh" opt; do
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"
     echo -e "\t-i <string>\tDocker image name without version tag."
     echo -e "\t-I <string>\tAlternative Docker image name without version tag. Can be used to push to a second repository."
-    echo -e "\t-e <string>\tEvent type. Valid types: "
+    echo -e "\t-e <string>\tEvent type. Valid types: api, cron"
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
     echo -e "\t-d         \tTurn on debug outputs"
     echo -e "\t-h         \tShows this help message"

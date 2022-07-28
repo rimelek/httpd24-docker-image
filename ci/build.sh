@@ -28,7 +28,7 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
   d) CI_DEBUG="true" ;;
   e)
     case "$OPTARG" in
-    push | api | cron) CI_EVENT_TYPE="$OPTARG" ;;
+    push | cron) CI_EVENT_TYPE="$OPTARG" ;;
     *)
       echo >&2 "Invalid event type: $OPTARG"
       exit 1
@@ -41,7 +41,7 @@ while getopts ":t:b:i:e:r:R:B:p:dh" opt; do
     echo -e "\t-t <string>\tGit commit tag if the build was triggered by tag. Do not use it anyway!"
     echo -e "\t-b <string>\tGit branch if the build was triggered by branch. If \"-t\" was given too, \"-b\" will always be ignored!"
     echo -e "\t-i <string>\tDocker image name without version tag."
-    echo -e "\t-e <string>\tEvent type. Valid types: "
+    echo -e "\t-e <string>\tEvent type. Valid types: api, cron"
     echo -e "\t-r <string>\tRemote repository alias. Default: origin"
     echo -e "\t-R <string>\tRemote repository URL. Default: the url of the repository alias"
     echo -e "\t-B <string>\tBuild number. git commit hash by default"
