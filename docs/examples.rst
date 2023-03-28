@@ -15,7 +15,7 @@ With Let's Encrypt without custom certificate name
        --env SRV_NAME=YOURDOMAIN \
        -v /etc/letsencrypt:/etc/letsencrypt \
        -p 443:443 \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 With Let's Encrypt and custom certificate name
 +++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,7 +29,7 @@ With Let's Encrypt and custom certificate name
        --env CERT_NAME=CUSTOMCERTNAME \
        -v /etc/letsencrypt:/etc/letsencrypt \
        -p 443:443 \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 You can mount custom certificate two ways
 ++++++++++++++++++++++++++++++++++++++++++
@@ -41,7 +41,7 @@ You can mount custom certificate two ways
        -v /path/to/custom.key:/usr/local/apache2/ssl.key \
        -v /path/to/custom.crt:/usr/local/apache2/ssl.crt \
        -p 443:443 \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 or
 
@@ -54,7 +54,7 @@ or
        -v /path/to/custom.key:/ssl.key \
        -v /path/to/custom.crt:/ssl.crt \
        -p 443:443 \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 
 HTTP Authentication
@@ -62,12 +62,12 @@ HTTP Authentication
 
 .. code-block:: bash
 
-    docker run --rm -i itsziget/httpd24 /bin/bash -c "htpasswd -nb YOURUSERNAME YOURPASSWORD" >> .htpasswd
+    docker run --rm -i rimelek/httpd24 /bin/bash -c "htpasswd -nb YOURUSERNAME YOURPASSWORD" >> .htpasswd
     docker run -d \
        -v `pwd`/.htpasswd:/usr/local/apache2/.htpasswd \
        --env SRV_AUTH="true" \
        -p 80:80 \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 or just generate htpasswd inside the container
 
@@ -78,7 +78,7 @@ or just generate htpasswd inside the container
        --env SRV_AUTH_USERS="admin1 password1\
      admin2 password2"
        -p 80:80 \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 
 Simplest way to use PHP-FPM
@@ -100,7 +100,7 @@ Legacy way
        --env SRV_PHP="true" \
        -p "80:80" \
        --link php \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 Recommended way
 +++++++++++++++
@@ -120,7 +120,7 @@ Recommended way
        --env SRV_PHP=1 \
        -p "80:80" \
        --network phptest \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 
 Reusing the network of the HTTPD container
@@ -140,7 +140,7 @@ Reusing the network of the HTTPD container
        --env SRV_PHP=1 \
        --env SRV_PHP_HOST=localhost \
        --network container:php \
-       itsziget/httpd24:2.0
+       rimelek/httpd24:2.0
 
 
 Use the rewrite engine
@@ -153,7 +153,7 @@ Use the rewrite engine
         -p 80:80 \
         --env SRV_ENABLE_MODULES="rewrite" \
         --env SRV_ALLOW_OVERRIDE="true" \
-        itsziget/httpd24:2.0
+        rimelek/httpd24:2.0
 
 Forward the admin page to another site:
 ---------------------------------------
@@ -165,7 +165,7 @@ Forward the admin page to another site:
         -p 80:80 \
         --env SRV_PROXY_FORWARD_FROM="/admin/" \
         --env SRV_PROXY_FORWARD_TO="http://admin.mysite.tld/" \
-        itsziget/httpd24:2.0
+        rimelek/httpd24:2.0
 
 
 Get real client IP behind reverse proxy
@@ -180,7 +180,7 @@ Proxy protocol
         -v $PWD/src:/usr/local/apache2/htdocs \
         -p 80:80 \
         --env SRV_PROXY_PROTOCOL="true" \
-        itsziget/httpd24:2.0
+        rimelek/httpd24:2.0
 
 Client IP header
 ++++++++++++++++
@@ -192,4 +192,4 @@ Client IP header
         -p 80:80 \
         --env SRV_REVERSE_PROXY_CLIENT_IP_HEADER="X-Forwarded-For" \
         --env SRV_REVERSE_PROXY_DOMAIN="haproxy" \
-        itsziget/httpd24:2.0
+        rimelek/httpd24:2.0

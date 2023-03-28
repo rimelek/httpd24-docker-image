@@ -1,10 +1,6 @@
-.. itsziget/httpd24 documentation master file, created by
-   sphinx-quickstart on Mon Jun 11 11:07:41 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Welcome to itsziget/httpd24 Docker image's documentation!
-=========================================================
+Welcome to rimelek/httpd24 Docker image's documentation!
+========================================================
 
 Have you heard about `Docker <https://www.docker.com/>`_ (Container engine)? Well, if you ever had problem with installing
 dependencies on the same machine for different projects, you should. If you need an `Apache HTTPD <https://hub.docker.com/_/httpd/>`_

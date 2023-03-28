@@ -32,7 +32,7 @@ SRV_ENABLE_CONFIG
 
     * Official configuration files in "conf/extra" directory. The name of them starts with the name of configuration and ends with ".conf".
       For example: httpd-default.conf. SRV_ENABLE_CONFIG="httpd-default httpd-ssl" will enable httpd-default.conf and httpd-ssl.conf. You will rarely need it.
-    * Custom configurations of itsziget/httpd24. These are in "conf/custom-extra" directory.
+    * Custom configurations of rimelek/httpd24. These are in "conf/custom-extra" directory.
       To enable these configurations you would need to prefix them with "@". Example: SRV_ENABLE_CONFIG="@php" These are controlled by environment variables so you don't need to enable them this way.
     * Your custom configuration can be saved to "conf/custom-extra/user" directory. If you want to enable them, prefix the configuration names with "@user/".
       Example: SRV_ENABLE_CONFIG="@user/my-conditional-redirect". Of course, the filename must ends with ".conf". See SRV_DISABLE_CONFIG to disable configurations.
@@ -106,7 +106,7 @@ SRV_SSL_NAME
 There are some other variables too just to be compatible with other docker containers like `Nginx Proxy <https://github.com/jwilder/nginx-proxy>`_.
 
 VIRTUAL_HOST
-    Nginx proxy and `Hosts gen <https://hub.docker.com/r/itsziget/hosts-gen/>`_ use this to determine the domain name of the containers.
+    Nginx proxy and `Hosts gen <https://hub.docker.com/r/rimelek/hosts-gen/>`_ use this to determine the domain name of the containers.
     If you set this variable and SRV_SSL_NAME, CERT_NAME, SRV_NAME are not set, it can be used to set the name of ssl certificate.
     See SRV_SSL_CERT and SRV_SSL_KEY.
 CERT_NAME
