@@ -20,5 +20,5 @@ The build is automated using [CircleCI](https://circleci.com/)
 For the detailed documentation see one of the following pages:
 
 * **\>=2.0**: https://httpd24-docker-image.readthedocs.io
-* **1.1**:  https://github.com/itsziget/httpd24-docker-image/blob/1.1/README.md
-* **1.0**: https://github.com/itsziget/httpd24-docker-image/blob/1.0/README.md
+* **1.1**:  https://github.com/rimelek/httpd24-docker-image/blob/1.1/README.md
+* **1.0**: https://github.com/rimelek/httpd24-docker-image/blob/1.0/README.md
